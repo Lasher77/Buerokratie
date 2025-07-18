@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styled from 'styled-components';
+import CommentSection from './CommentSection';
 
 const DetailContainer = styled.div`
   max-width: 900px;
@@ -321,6 +322,7 @@ const ReportDetail = () => {
             {voteStatus.voteCount} {voteStatus.voteCount === 1 ? 'Person ist' : 'Personen sind'} auch betroffen
           </VoteCount>
         </VotingSection>
+        <CommentSection reportId={id} />
       </ReportCard>
     </DetailContainer>
   );

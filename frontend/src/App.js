@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import ReportForm from './components/ReportForm';
 import ReportList from './components/ReportList';
 import ReportDetail from './components/ReportDetail';
+import { AuthProvider } from './AuthContext';
 
 const AppContainer = styled.div`
   font-family: Arial, sans-serif;
@@ -117,8 +118,9 @@ const Copyright = styled.div`
 
 function App() {
   return (
-    <Router>
-      <AppContainer>
+    <AuthProvider>
+      <Router>
+        <AppContainer>
         <Header>
           <HeaderContent>
             <Logo>
@@ -169,6 +171,7 @@ function App() {
         </Footer>
       </AppContainer>
     </Router>
+  </AuthProvider>
   );
 }
 

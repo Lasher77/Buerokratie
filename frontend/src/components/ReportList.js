@@ -159,6 +159,10 @@ const VoteCount = styled.span`
   font-weight: bold;
 `;
 
+const CommentIndicator = styled.span`
+  margin-left: 5px;
+`;
+
 const NoResults = styled.div`
   text-align: center;
   padding: 40px;
@@ -295,6 +299,9 @@ const ReportList = () => {
                 <VoteCount>
                   👍 {report.vote_count || 0}
                 </VoteCount>
+                {report.has_comments && (
+                  <CommentIndicator title="Kommentare vorhanden">💬</CommentIndicator>
+                )}
               </ReportStats>
             </ReportMeta>
           </ReportCard>
