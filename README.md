@@ -120,10 +120,12 @@ Passen Sie die Datei `backend/.env` an Ihre Umgebung an:
 PORT=5000
 DB_HOST=localhost
 DB_USER=bvmw_user
-DB_PASSWORD=IhrSicheresPasswort
+DB_PASSWORD=changeme
 DB_NAME=buerokratieabbau
-JWT_SECRET=IhrGeheimesJWTToken
+JWT_SECRET=changeme
 ```
+
+**Wichtig:** Ersetzen Sie die Platzhalter `changeme` in `DB_PASSWORD` und `JWT_SECRET` durch sichere, individuelle Werte.
 
 ### MySQL-Setup
 
