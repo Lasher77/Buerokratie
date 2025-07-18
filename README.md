@@ -196,7 +196,7 @@ npm test
 
 Bei Fragen oder Problemen wenden Sie sich an das Entwicklungsteam.
 
+
 ## Lizenz
 
-Dieses Projekt ist urheberrechtlich geschützt und Eigentum des BVMW.
-
+Dieses Projekt ist proprietaer. Eine Weitergabe oder Aenderung ist ohne ausdrueckliche schriftliche Genehmigung des BVMW nicht gestattet. Siehe die Datei LICENSE fuer Details.
