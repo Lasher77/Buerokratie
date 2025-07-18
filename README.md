@@ -173,6 +173,13 @@ mysql -u bvmw_user -p buerokratieabbau < database_votes_extension.sql
 - `GET /api/reports/:id/comments` - Kommentare zu einer Meldung abrufen
 - `POST /api/reports/:id/comments` - Kommentar zu einer Meldung erstellen (nur Moderator/Admin)
 
+### Authentifizierung
+- `POST /api/auth/register` - Benutzer registrieren und JWT erhalten
+- `POST /api/auth/login` - Mit E-Mail und Passwort anmelden
+
+Senden Sie das ausgegebene Token bei geschützten Anfragen im Header:
+`Authorization: Bearer <TOKEN>`
+
 ## Roadmap
 
 1. **MVP (Aktuelle Version)**

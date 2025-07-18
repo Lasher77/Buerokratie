@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router({ mergeParams: true });
 const db = require('../config/db');
 const { body, validationResult } = require('express-validator');
-const { authenticateJWT, authorizeRoles } = require('../middleware/auth');
+const { verifyToken, requireRole } = require('../middleware/auth');
 
 // Kommentare zu einer Meldung abrufen
 router.get('/', async (req, res) => {
@@ -21,8 +21,8 @@ router.get('/', async (req, res) => {
 // Kommentar erstellen
 router.post(
   '/',
-  authenticateJWT,
-  authorizeRoles(['moderator', 'admin']),
+  verifyToken,
+  requireRole('moderator'),
   [body('text').notEmpty().withMessage('Text ist erforderlich').trim(), body('law_reference').optional().trim()],
   async (req, res) => {
     const errors = validationResult(req);

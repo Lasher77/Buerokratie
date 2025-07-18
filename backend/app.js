@@ -17,11 +17,13 @@ const categoriesRoutes = require('./routes/categories');
 const reportsRoutes = require('./routes/reports');
 const votesRoutes = require('./routes/votes');
 const commentsRoutes = require('./routes/comments');
+const authRoutes = require('./routes/auth');
 
 app.use('/api/categories', categoriesRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/votes', votesRoutes);
 app.use('/api/reports/:id/comments', commentsRoutes);
+app.use('/api/auth', authRoutes);
 
 // Basis-Route
 app.get('/', (req, res) => {
