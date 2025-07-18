@@ -2,11 +2,9 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 const { body, validationResult } = require('express-validator');
+const { randomUUID } = require('crypto');
 
-// Session-ID generieren (einfache Implementierung)
-function generateSessionId() {
-  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-}
+// Session-ID generieren mit kryptografisch sicheren Zufallswerten
 
 // Bewertung hinzufügen ("Das betrifft mich auch")
 router.post('/:reportId/vote', async (req, res) => {
@@ -16,7 +14,7 @@ router.post('/:reportId/vote', async (req, res) => {
     
     // Session-ID generieren falls nicht vorhanden
     if (!sessionId) {
-      sessionId = generateSessionId();
+      sessionId = randomUUID();
     }
 
     const ipAddress = req.ip || req.connection.remoteAddress;
