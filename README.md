@@ -40,6 +40,10 @@ mysql -u BENUTZERNAME -p < database/schema.sql
 # Erweiterung für das Bewertungssystem (legt die Tabelle `votes` an)
 mysql -u BENUTZERNAME -p buerokratieabbau < ../database_votes_extension.sql
 
+# Haben Sie das Schema vor der Einführung der Kommentarfunktion installiert,
+# führen Sie zusaetzlich folgendes Skript aus:
+mysql -u BENUTZERNAME -p buerokratieabbau < ../database_comments_extension.sql
+
 # Server starten
 npm run dev
 ```
@@ -78,6 +82,31 @@ Die Plattform verwendet folgende vordefinierte Kategorien:
 6. **Datenschutz** - DSGVO und andere Datenschutzanforderungen
 7. **Arbeitsschutz** - Arbeitsschutzvorschriften und Gefährdungsbeurteilungen
 8. **Branchenspezifisches** - Branchenspezifische Vorschriften und Auflagen
+
+## Kommentarfunktion
+
+Die Plattform verfügt über eine Tabelle `comments`, in der Moderatoren oder
+Administratoren Ergänzungen zu gemeldeten Fällen hinterlegen können.
+Jeder Kommentar enthält optional einen Gesetzesbezug (`law_reference`) und
+wird einem Benutzer sowie einer Meldung zugeordnet.
+
+**Spalten der Tabelle**
+
+- `id` – Primärschlüssel
+- `report_id` – Referenz auf die betroffene Meldung
+- `user_id` – Referenz auf den Autor (nur Moderator/Admin)
+- `law_reference` – optionale Angabe des zugrundeliegenden Gesetzes
+- `text` – eigentlicher Kommentar
+- `created_at` – Zeitstempel der Erstellung
+
+Authentifizierte Moderatoren oder Administratoren erhalten ihr JWT über
+`POST /api/auth/login` (oder `POST /api/auth/register` für neue Accounts).
+Das Token wird beim Anlegen eines Kommentars an
+`POST /api/reports/:id/comments` im Header `Authorization: Bearer <TOKEN>`
+gesendet. Normale Benutzer dürfen zwar keine Kommentare erstellen, können sie
+aber über `GET /api/reports/:id/comments` ansehen. In der Meldungsübersicht
+wird anhand eines Sprechblasensymbols (`💬`) angezeigt, ob zu einer Meldung
+bereits Kommentare vorliegen.
 
 ## Technologie-Stack
 
