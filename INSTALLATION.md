@@ -46,6 +46,9 @@ EXIT;
 #### Schema importieren
 ```bash
 mysql -u bvmw_user -p buerokratieabbau < backend/database/schema.sql
+
+# Erweiterung für das Bewertungssystem einspielen
+mysql -u bvmw_user -p buerokratieabbau < database_votes_extension.sql
 ```
 
 ### 3. Backend starten

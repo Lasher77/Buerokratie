@@ -11,5 +11,21 @@ const pool = mysql.createPool({
   queueLimit: 0
 });
 
+// Sicherstellen, dass die Tabelle 'votes' vorhanden ist
+if (process.env.NODE_ENV !== 'test') {
+  (async () => {
+    try {
+      const [rows] = await pool.query("SHOW TABLES LIKE 'votes'");
+      if (rows.length === 0) {
+        console.error("Die Tabelle 'votes' wurde nicht gefunden. Bitte 'database_votes_extension.sql' ausführen.");
+        process.exit(1);
+      }
+    } catch (err) {
+      console.error("Fehler bei der Prüfung der Tabelle 'votes':", err);
+      process.exit(1);
+    }
+  })();
+}
+
 module.exports = pool;
 
