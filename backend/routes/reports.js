@@ -27,7 +27,8 @@ router.get('/', async (req, res) => {
   try {
     const [rows] = await db.query(`
       SELECT r.*, c.name as category_name,
-             COALESCE(v.vote_count, 0) as vote_count
+             COALESCE(v.vote_count, 0) as vote_count,
+             EXISTS (SELECT 1 FROM comments WHERE report_id = r.id) AS has_comments
       FROM reports r 
       LEFT JOIN categories c ON r.category_id = c.id 
       LEFT JOIN (
