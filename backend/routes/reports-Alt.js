@@ -6,7 +6,10 @@ const { body, validationResult } = require('express-validator');
 // Angepasste Validierungsregeln für Meldungen
 const reportValidationRules = [
   body('title').notEmpty().withMessage('Titel ist erforderlich').trim().escape(),
-  body('description').notEmpty().withMessage('Beschreibung ist erforderlich').trim(),
+  body('description')
+    .notEmpty().withMessage('Beschreibung ist erforderlich')
+    .trim()
+    .escape(),
   body('category_id').notEmpty().withMessage('Kategorie ist erforderlich').isInt().withMessage('Ungültige Kategorie-ID'),
   body('time_spent').optional({ nullable: true }).isInt({ min: 0 }).withMessage('Zeitaufwand muss eine positive Zahl sein'),
   body('costs').optional({ nullable: true }).isFloat({ min: 0 }).withMessage('Kosten müssen eine positive Zahl sein'),
