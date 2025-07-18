@@ -32,8 +32,11 @@ npm install
 # Passen Sie die Werte in der .env-Datei an Ihre Umgebung an
 
 # Datenbank einrichten
-# Führen Sie das SQL-Script aus
+# Basisschema importieren
 mysql -u BENUTZERNAME -p < database/schema.sql
+
+# Erweiterung für das Bewertungssystem (legt die Tabelle `votes` an)
+mysql -u BENUTZERNAME -p buerokratieabbau < ../database_votes_extension.sql
 
 # Server starten
 npm run dev
@@ -144,6 +147,9 @@ FLUSH PRIVILEGES;
 3. Importieren Sie das Schema:
 ```bash
 mysql -u bvmw_user -p buerokratieabbau < backend/database/schema.sql
+
+# Erweiterung für das Bewertungssystem einspielen
+mysql -u bvmw_user -p buerokratieabbau < database_votes_extension.sql
 ```
 
 ## API-Endpunkte
