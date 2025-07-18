@@ -170,10 +170,27 @@ mysql -u bvmw_user -p buerokratieabbau < backend/database/schema.sql
    - Bewertungssystem für Meldungen
    - Erweiterte Statistiken und Dashboards
 
+
 3. **Version 3.0**
    - Salesforce-Integration für Leadgenerierung
    - Automatische Dossier-Erstellung für politische Arbeit
    - Community-Features und Diskussionsmöglichkeiten
+
+## Tests
+
+### Backend
+
+```bash
+cd backend
+npm test
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm test
+```
 
 ## Support
 
