@@ -5,6 +5,8 @@ import styled from 'styled-components';
 import axios from 'axios';
 import CategorySelect from './CategorySelect';
 
+const isDev = process.env.NODE_ENV === 'development';
+
 const FormContainer = styled.div`
   max-width: 800px;
   margin: 0 auto;
@@ -163,11 +165,15 @@ const ReportForm = () => {
         formData.reporter_email = null;
       }
 
-      console.log('Gesendete Daten:', formData);
+      if (isDev) {
+        console.log('Gesendete Daten:', formData);
+      }
       
       try {
         const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/reports`, formData);
-        console.log('Antwort vom Server:', response.data);
+        if (isDev) {
+          console.log('Antwort vom Server:', response.data);
+        }
         setSubmitSuccess(true);
         formik.resetForm();
         window.scrollTo(0, 0);

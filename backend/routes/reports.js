@@ -3,6 +3,8 @@ const router = express.Router();
 const db = require('../config/db');
 const { body, validationResult } = require('express-validator');
 
+const isDev = process.env.NODE_ENV === 'development';
+
 // Angepasste Validierungsregeln für Meldungen
 const reportValidationRules = [
   body('title').notEmpty().withMessage('Titel ist erforderlich').trim().escape(),
@@ -74,10 +76,12 @@ router.post('/', reportValidationRules, async (req, res) => {
   // Validierungsfehler prüfen
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    console.log('Validierungsfehler:', errors.array());
-    return res.status(400).json({ 
+    if (isDev) {
+      console.log('Validierungsfehler:', errors.array());
+    }
+    return res.status(400).json({
       message: 'Validierungsfehler',
-      errors: errors.array() 
+      errors: errors.array()
     });
   }
 
@@ -95,7 +99,9 @@ router.post('/', reportValidationRules, async (req, res) => {
       is_anonymous
     } = req.body;
 
-    console.log('Empfangene Daten:', req.body);
+    if (isDev) {
+      console.log('Empfangene Daten:', req.body);
+    }
 
     // Prüfen, ob die Kategorie existiert
     const [categoryCheck] = await db.query('SELECT id FROM categories WHERE id = ?', [category_id]);
@@ -128,7 +134,9 @@ router.post('/', reportValidationRules, async (req, res) => {
       ]
     );
 
-    console.log('Meldung erfolgreich erstellt mit ID:', result.insertId);
+    if (isDev) {
+      console.log('Meldung erfolgreich erstellt mit ID:', result.insertId);
+    }
 
     // Neue Meldung mit Kategoriename abrufen
     const [newReport] = await db.query(`
