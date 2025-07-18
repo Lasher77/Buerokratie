@@ -53,6 +53,18 @@ CREATE TABLE feedback (
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+-- Kommentare zu Meldungen
+CREATE TABLE comments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  report_id INT NOT NULL,
+  user_id INT NOT NULL,
+  law_reference VARCHAR(255),
+  text TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
 -- Initiale Kategorien einfügen
 INSERT INTO categories (name, description) VALUES
 ('Steuer', 'Steuerliche Vorschriften und Meldepflichten'),

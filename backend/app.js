@@ -16,10 +16,12 @@ app.set('trust proxy', true);
 const categoriesRoutes = require('./routes/categories');
 const reportsRoutes = require('./routes/reports');
 const votesRoutes = require('./routes/votes');
+const commentsRoutes = require('./routes/comments');
 
 app.use('/api/categories', categoriesRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/votes', votesRoutes);
+app.use('/api/reports/:id/comments', commentsRoutes);
 
 // Basis-Route
 app.get('/', (req, res) => {

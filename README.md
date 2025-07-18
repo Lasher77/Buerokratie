@@ -35,6 +35,8 @@ npm install
 # Basisschema importieren
 mysql -u BENUTZERNAME -p < database/schema.sql
 
+# Das Basisschema legt auch die Tabelle `comments` an
+
 # Erweiterung für das Bewertungssystem (legt die Tabelle `votes` an)
 mysql -u BENUTZERNAME -p buerokratieabbau < ../database_votes_extension.sql
 
@@ -148,6 +150,8 @@ FLUSH PRIVILEGES;
 ```bash
 mysql -u bvmw_user -p buerokratieabbau < backend/database/schema.sql
 
+# Enthält auch die Tabelle `comments`
+
 # Erweiterung für das Bewertungssystem einspielen
 mysql -u bvmw_user -p buerokratieabbau < database_votes_extension.sql
 ```
@@ -164,6 +168,10 @@ mysql -u bvmw_user -p buerokratieabbau < database_votes_extension.sql
 - `GET /api/reports/:id` - Eine Meldung nach ID abrufen
 - `GET /api/reports/category/:categoryId` - Meldungen nach Kategorie filtern
 - `GET /api/reports/search/:query` - Meldungen durchsuchen
+
+### Kommentare
+- `GET /api/reports/:id/comments` - Kommentare zu einer Meldung abrufen
+- `POST /api/reports/:id/comments` - Kommentar zu einer Meldung erstellen (nur Moderator/Admin)
 
 ## Roadmap
 
