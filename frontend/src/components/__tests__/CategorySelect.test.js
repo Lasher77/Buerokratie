@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import CategorySelect from '../CategorySelect';
 import axios from 'axios';
+
+let CategorySelect;
 
 jest.mock('axios', () => ({
   __esModule: true,
@@ -11,6 +12,8 @@ jest.mock('axios', () => ({
 
 beforeEach(() => {
   process.env.REACT_APP_API_BASE_URL = '';
+  jest.resetModules();
+  CategorySelect = require('../CategorySelect').default;
 });
 
 test('renders options from api', async () => {

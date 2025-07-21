@@ -1,7 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import axios from 'axios';
-import CommentSection from '../CommentSection';
 import { AuthProvider } from '../../AuthContext';
+
+let CommentSection;
 
 jest.mock('axios', () => ({
   __esModule: true,
@@ -13,6 +14,8 @@ jest.mock('axios', () => ({
 
 beforeEach(() => {
   process.env.REACT_APP_API_BASE_URL = '';
+  jest.resetModules();
+  CommentSection = require('../CommentSection').default;
 });
 
 test('renders comments from api', async () => {

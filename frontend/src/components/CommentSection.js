@@ -3,6 +3,8 @@ import axios from 'axios';
 import styled from 'styled-components';
 import { useAuth } from '../AuthContext';
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL || '';
+
 const Section = styled.div`
   margin-top: 40px;
 `;
@@ -58,7 +60,7 @@ const CommentSection = ({ reportId }) => {
     const fetchComments = async () => {
       try {
         const response = await axios.get(
-          `${process.env.REACT_APP_API_BASE_URL}/api/reports/${reportId}/comments`
+          `${API_BASE}/api/reports/${reportId}/comments`
         );
         setComments(response.data);
       } catch (err) {
@@ -80,7 +82,7 @@ const CommentSection = ({ reportId }) => {
     try {
       const token = localStorage.getItem('authToken');
       const response = await axios.post(
-        `${process.env.REACT_APP_API_BASE_URL}/api/reports/${reportId}/comments`,
+        `${API_BASE}/api/reports/${reportId}/comments`,
         { text, law_reference: lawRef || null },
         { headers: { Authorization: token ? `Bearer ${token}` : '' } }
       );

@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import CategorySelect from './CategorySelect';
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL || '';
+
 const ListContainer = styled.div`
   max-width: 1000px;
   margin: 0 auto;
@@ -198,7 +200,7 @@ const ReportList = () => {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/reports`);
+        const response = await axios.get(`${API_BASE}/api/reports`);
         setReports(response.data);
         setFilteredReports(response.data);
         setLoading(false);

@@ -4,6 +4,8 @@ import axios from 'axios';
 import styled from 'styled-components';
 import CommentSection from './CommentSection';
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL || '';
+
 const DetailContainer = styled.div`
   max-width: 900px;
   margin: 0 auto;
@@ -177,7 +179,7 @@ const ReportDetail = () => {
   useEffect(() => {
     const fetchReport = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/reports/${id}`);
+        const response = await axios.get(`${API_BASE}/api/reports/${id}`);
         setReport(response.data);
         setLoading(false);
       } catch (err) {
@@ -198,7 +200,7 @@ const ReportDetail = () => {
       if (!sessionId || !id) return;
 
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/votes/${id}/vote-status`, {
+        const response = await axios.get(`${API_BASE}/api/votes/${id}/vote-status`, {
           headers: { 'x-session-id': sessionId }
         });
         setVoteStatus(response.data);
@@ -217,7 +219,7 @@ const ReportDetail = () => {
     try {
       if (voteStatus.hasVoted) {
         // Bewertung entfernen
-        const response = await axios.delete(`${process.env.REACT_APP_API_BASE_URL}/api/votes/${id}/vote`, {
+        const response = await axios.delete(`${API_BASE}/api/votes/${id}/vote`, {
           headers: { 'x-session-id': sessionId }
         });
         setVoteStatus({
@@ -226,7 +228,7 @@ const ReportDetail = () => {
         });
       } else {
         // Bewertung hinzufügen
-        const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/votes/${id}/vote`, {}, {
+        const response = await axios.post(`${API_BASE}/api/votes/${id}/vote`, {}, {
           headers: { 'x-session-id': sessionId }
         });
         setVoteStatus({
