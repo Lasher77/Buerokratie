@@ -29,6 +29,7 @@ cd backend
 npm install
 
 # Umgebungsvariablen konfigurieren
+cp .env.example .env
 # Passen Sie die Werte in der .env-Datei an Ihre Umgebung an
 
 # Datenbank einrichten
@@ -56,6 +57,10 @@ cd frontend
 
 # Abhängigkeiten installieren
 npm install
+
+# Umgebungsvariablen konfigurieren
+cp .env.example .env
+# Setzen Sie die Adresse des Backends in `REACT_APP_API_BASE_URL`
 
 # Entwicklungsserver starten
 npm start
@@ -152,6 +157,7 @@ Passen Sie die Datei `backend/.env` an Ihre Umgebung an:
 
 ```
 PORT=5000
+ALLOWED_ORIGINS=http://localhost:3000
 DB_HOST=localhost
 DB_USER=bvmw_user
 DB_PASSWORD=changeme
@@ -160,6 +166,9 @@ JWT_SECRET=changeme
 ```
 
 **Wichtig:** Ersetzen Sie die Platzhalter `changeme` in `DB_PASSWORD` und `JWT_SECRET` durch sichere, individuelle Werte.
+
+`ALLOWED_ORIGINS` legt fest, welche Urspruenge beim Aufruf der API zugelassen sind.
+Mehrere Eintraege koennen komma-getrennt angegeben werden.
 
 ### MySQL-Setup
 
