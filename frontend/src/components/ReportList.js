@@ -5,6 +5,8 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import CategorySelect from './CategorySelect';
 
+const isDev = process.env.NODE_ENV === 'development';
+
 
 const ListContainer = styled.div`
   max-width: 1000px;
@@ -205,8 +207,10 @@ const ReportList = () => {
         setFilteredReports(response.data);
         setLoading(false);
       } catch (err) {
-        console.error('Fehler beim Laden der Meldungen:', err);
-        setError('Meldungen konnten nicht geladen werden.');
+        console.error('Fehler beim Laden der Meldungen:', err.message || err.response);
+        const devMessage = err.message || err.response?.data?.message;
+        const genericMessage = 'Meldungen konnten nicht geladen werden.';
+        setError(isDev && devMessage ? `${genericMessage} (${devMessage})` : genericMessage);
         setLoading(false);
       }
     };
