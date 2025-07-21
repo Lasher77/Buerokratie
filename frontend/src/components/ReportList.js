@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../api';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import CategorySelect from './CategorySelect';
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL || '';
 
 const ListContainer = styled.div`
   max-width: 1000px;

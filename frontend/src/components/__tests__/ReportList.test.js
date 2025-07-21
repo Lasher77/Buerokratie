@@ -11,9 +11,9 @@ jest.mock('axios', () => ({
   default: { get: jest.fn() },
 }));
 
-beforeEach(() => {
-  process.env.REACT_APP_API_BASE_URL = '';
+ beforeEach(() => {
   jest.resetModules();
+  process.env.REACT_APP_API_BASE_URL = '';
   ReportList = require('../ReportList').default;
 });
 

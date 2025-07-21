@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { API_BASE } from '../api';
 import styled from 'styled-components';
 import CommentSection from './CommentSection';
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL || '';
 
 const DetailContainer = styled.div`
   max-width: 900px;

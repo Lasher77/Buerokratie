@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../api';
 import styled from 'styled-components';
 import { useAuth } from '../AuthContext';
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL || '';
 
 const Section = styled.div`
   margin-top: 40px;
