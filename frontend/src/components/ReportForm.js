@@ -3,6 +3,8 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import styled from 'styled-components';
 import axios from 'axios';
+
+const API_BASE = process.env.REACT_APP_API_BASE_URL || '';
 import CategorySelect from './CategorySelect';
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -170,7 +172,7 @@ const ReportForm = () => {
       }
       
       try {
-        const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/reports`, formData);
+        const response = await axios.post(`${API_BASE}/api/reports`, formData);
         if (isDev) {
           console.log('Antwort vom Server:', response.data);
         }
