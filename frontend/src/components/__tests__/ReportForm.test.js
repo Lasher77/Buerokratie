@@ -19,9 +19,9 @@ jest.mock('../CategorySelect', () => ({ value, onChange }) => (
   </select>
 ));
 
-beforeEach(() => {
-  process.env.REACT_APP_API_BASE_URL = '/base';
+ beforeEach(() => {
   jest.resetModules();
+  process.env.REACT_APP_API_BASE_URL = '/base';
   ReportForm = require('../ReportForm').default;
 });
 

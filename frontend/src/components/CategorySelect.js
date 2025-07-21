@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../api';
 import styled from 'styled-components';
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL || '';
 
 const SelectContainer = styled.div`
   margin-bottom: 20px;

@@ -3,8 +3,8 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import styled from 'styled-components';
 import axios from 'axios';
+import { API_BASE } from '../api';
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL || '';
 import CategorySelect from './CategorySelect';
 
 const isDev = process.env.NODE_ENV === 'development';

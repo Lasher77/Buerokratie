@@ -10,9 +10,9 @@ jest.mock('axios', () => ({
   }
 }));
 
-beforeEach(() => {
-  process.env.REACT_APP_API_BASE_URL = '';
+ beforeEach(() => {
   jest.resetModules();
+  process.env.REACT_APP_API_BASE_URL = '';
   CategorySelect = require('../CategorySelect').default;
 });
 
