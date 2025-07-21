@@ -2,7 +2,8 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import axios from 'axios';
-import ReportList from '../ReportList';
+
+let ReportList;
 jest.mock('../CategorySelect', () => () => <div />);
 
 jest.mock('axios', () => ({
@@ -12,6 +13,8 @@ jest.mock('axios', () => ({
 
 beforeEach(() => {
   process.env.REACT_APP_API_BASE_URL = '';
+  jest.resetModules();
+  ReportList = require('../ReportList').default;
 });
 
 test('shows comment indicator when has_comments is true', async () => {

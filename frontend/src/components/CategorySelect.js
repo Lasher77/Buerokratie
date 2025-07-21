@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import styled from 'styled-components';
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL || '';
+
 const SelectContainer = styled.div`
   margin-bottom: 20px;
 `;
@@ -40,7 +42,7 @@ const CategorySelect = ({ value, onChange, required = false }) => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/categories`);
+        const response = await axios.get(`${API_BASE}/api/categories`);
         setCategories(response.data);
         setLoading(false);
       } catch (err) {
