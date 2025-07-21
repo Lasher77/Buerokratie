@@ -1,5 +1,6 @@
 const express = require('express');
 const helmet = require('helmet');
+const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
@@ -11,6 +12,22 @@ app.use(express.urlencoded({ extended: true }));
 
 // Trust proxy für korrekte IP-Adressen
 app.set('trust proxy', true);
+
+// CORS-Konfiguration
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+if (allowedOrigins.length > 0) {
+  app.use(
+    cors({
+      origin: allowedOrigins,
+    })
+  );
+} else {
+  app.use(cors());
+}
 
 // Routen
 const categoriesRoutes = require('./routes/categories');
