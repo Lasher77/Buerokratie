@@ -189,7 +189,8 @@ const CommentSection = ({ reportId }) => {
               </>
             )
           </CommentBox>
-        ))
+          );
+        })
       )}
 
       {(user?.role === 'moderator' || user?.role === 'admin') && (
