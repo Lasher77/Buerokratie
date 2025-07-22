@@ -150,6 +150,7 @@ const CommentSection = ({ reportId }) => {
       {comments.length === 0 ? (
         <div>Noch keine Kommentare</div>
       ) : (
+
         comments.map((c) => (
           <CommentBox key={c.id}>
             {editingId === c.id ? (
