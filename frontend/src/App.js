@@ -4,7 +4,9 @@ import styled from 'styled-components';
 import ReportForm from './components/ReportForm';
 import ReportList from './components/ReportList';
 import ReportDetail from './components/ReportDetail';
-import { AuthProvider } from './AuthContext';
+import { AuthProvider, useAuth } from './AuthContext';
+import LoginPage from './pages/LoginPage';
+import RegisterModeratorPage from './pages/RegisterModeratorPage';
 
 const AppContainer = styled.div`
   font-family: Arial, sans-serif;
@@ -116,6 +118,23 @@ const Copyright = styled.div`
   margin-top: 20px;
 `;
 
+function Navigation() {
+  const { user, logout } = useAuth();
+  return (
+    <Nav>
+      <NavLink to="/">Übersicht</NavLink>
+      <NavLink to="/melden">Hemmnis melden</NavLink>
+      {!user && <NavLink to="/login">Login</NavLink>}
+      {user?.role === 'admin' && (
+        <NavLink to="/register-moderator">Moderator registrieren</NavLink>
+      )}
+      {user && (
+        <button onClick={logout}>Logout</button>
+      )}
+    </Nav>
+  );
+}
+
 function App() {
   return (
     <AuthProvider>
@@ -126,10 +145,7 @@ function App() {
             <Logo>
               <LogoText>BVMW Bürokratieabbau</LogoText>
             </Logo>
-            <Nav>
-              <NavLink to="/">Übersicht</NavLink>
-              <NavLink to="/melden">Hemmnis melden</NavLink>
-            </Nav>
+            <Navigation />
           </HeaderContent>
         </Header>
         
@@ -138,6 +154,8 @@ function App() {
             <Route path="/" element={<ReportList />} />
             <Route path="/melden" element={<ReportForm />} />
             <Route path="/meldung/:id" element={<ReportDetail />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register-moderator" element={<RegisterModeratorPage />} />
           </Routes>
         </Main>
         
