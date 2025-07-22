@@ -53,3 +53,40 @@ describe('GET /api/reports/:id/comments', () => {
     expect(res.body).toEqual([{ id: 1, text: 'Test' }]);
   });
 });
+
+describe('PUT /api/reports/:id/comments/:commentId', () => {
+  it('updates comment for moderator', async () => {
+    const token = jwt.sign({ id: 1, role: 'moderator' }, process.env.JWT_SECRET);
+    db.query.mockResolvedValueOnce([{ affectedRows: 1 }]);
+
+    const res = await request(app)
+      .put('/api/reports/1/comments/2')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ text: 'Neu' });
+
+    expect(res.statusCode).toBe(200);
+  });
+
+  it('rejects user role', async () => {
+    const token = jwt.sign({ id: 1, role: 'user' }, process.env.JWT_SECRET);
+    const res = await request(app)
+      .put('/api/reports/1/comments/2')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ text: 'Neu' });
+
+    expect(res.statusCode).toBe(403);
+  });
+});
+
+describe('DELETE /api/reports/:id/comments/:commentId', () => {
+  it('deletes comment for moderator', async () => {
+    const token = jwt.sign({ id: 1, role: 'moderator' }, process.env.JWT_SECRET);
+    db.query.mockResolvedValueOnce([{ affectedRows: 1 }]);
+
+    const res = await request(app)
+      .delete('/api/reports/1/comments/2')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.statusCode).toBe(200);
+  });
+});

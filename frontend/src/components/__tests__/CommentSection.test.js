@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import { AuthProvider } from '../../AuthContext';
 
@@ -9,6 +10,8 @@ jest.mock('axios', () => ({
   default: {
     get: jest.fn(),
     post: jest.fn(),
+    put: jest.fn(),
+    delete: jest.fn(),
   },
 }));
 
@@ -49,4 +52,28 @@ test('hides form for regular users', async () => {
   );
   await waitFor(() => screen.getByText('Noch keine Kommentare'));
   expect(screen.queryByPlaceholderText('Kommentar eingeben')).toBeNull();
+});
+
+test('shows edit and delete buttons for moderators', async () => {
+  axios.get.mockResolvedValueOnce({ data: [{ id: 1, text: 'A' }] });
+  render(
+    <AuthProvider initialUser={{ role: 'moderator' }}>
+      <CommentSection reportId={1} />
+    </AuthProvider>
+  );
+  await waitFor(() => screen.getByText('A'));
+  expect(screen.getByRole('button', { name: /bearbeiten/i })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /löschen/i })).toBeInTheDocument();
+});
+
+test('delete button triggers api call', async () => {
+  axios.get.mockResolvedValueOnce({ data: [{ id: 1, text: 'A' }] });
+  render(
+    <AuthProvider initialUser={{ role: 'moderator' }}>
+      <CommentSection reportId={1} />
+    </AuthProvider>
+  );
+  await waitFor(() => screen.getByText('A'));
+  await userEvent.click(screen.getByRole('button', { name: /löschen/i }));
+  await waitFor(() => expect(axios.delete).toHaveBeenCalled());
 });
