@@ -55,6 +55,9 @@ const CommentSection = ({ reportId }) => {
   const [loading, setLoading] = useState(true);
   const [text, setText] = useState('');
   const [lawRef, setLawRef] = useState('');
+  const [editingId, setEditingId] = useState(null);
+  const [editText, setEditText] = useState('');
+  const [editLawRef, setEditLawRef] = useState('');
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -94,6 +97,51 @@ const CommentSection = ({ reportId }) => {
     }
   };
 
+  const startEdit = (c) => {
+    setEditingId(c.id);
+    setEditText(c.text);
+    setEditLawRef(c.law_reference || '');
+  };
+
+  const handleEdit = async (e) => {
+    e.preventDefault();
+    if (!editText.trim()) return;
+
+    try {
+      const token = localStorage.getItem('authToken');
+      await axios.put(
+        `${API_BASE}/api/reports/${reportId}/comments/${editingId}`,
+        { text: editText, law_reference: editLawRef || null },
+        { headers: { Authorization: token ? `Bearer ${token}` : '' } }
+      );
+      setComments(
+        comments.map((c) =>
+          c.id === editingId
+            ? { ...c, text: editText, law_reference: editLawRef || null }
+            : c
+        )
+      );
+      setEditingId(null);
+      setEditText('');
+      setEditLawRef('');
+    } catch (err) {
+      console.error('Fehler beim Aktualisieren des Kommentars:', err);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      await axios.delete(
+        `${API_BASE}/api/reports/${reportId}/comments/${id}`,
+        { headers: { Authorization: token ? `Bearer ${token}` : '' } }
+      );
+      setComments(comments.filter((c) => c.id !== id));
+    } catch (err) {
+      console.error('Fehler beim Löschen des Kommentars:', err);
+    }
+  };
+
   if (loading) return <div>Kommentare werden geladen...</div>;
 
   return (
@@ -102,14 +150,48 @@ const CommentSection = ({ reportId }) => {
       {comments.length === 0 ? (
         <div>Noch keine Kommentare</div>
       ) : (
-        comments.map((c) => (
-          <CommentBox key={c.id}>
-            <div>{c.text}</div>
-            {c.law_reference && (
-              <LawReference>{c.law_reference}</LawReference>
-            )}
-          </CommentBox>
-        ))
+        comments.map((c) => {
+          const editing = editingId === c.id;
+          return (
+            <CommentBox key={c.id}>
+              {editing ? (
+                <Form onSubmit={handleEdit}>
+                  <TextArea
+                    value={editText}
+                    onChange={(e) => setEditText(e.target.value)}
+                    required
+                  />
+                  <Input
+                    value={editLawRef}
+                    placeholder="Gesetzesbezug (optional)"
+                    onChange={(e) => setEditLawRef(e.target.value)}
+                  />
+                  <Button type="submit">Speichern</Button>
+                  <Button type="button" onClick={() => setEditingId(null)}>
+                    Abbrechen
+                  </Button>
+                </Form>
+              ) : (
+                <>
+                  <div>{c.text}</div>
+                  {c.law_reference && (
+                    <LawReference>{c.law_reference}</LawReference>
+                  )}
+                  {(user?.role === 'moderator' || user?.role === 'admin') && (
+                    <div>
+                      <Button type="button" onClick={() => startEdit(c)}>
+                        Bearbeiten
+                      </Button>
+                      <Button type="button" onClick={() => handleDelete(c.id)}>
+                        Löschen
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
+            </CommentBox>
+          );
+        })
       )}
 
       {(user?.role === 'moderator' || user?.role === 'admin') && (
