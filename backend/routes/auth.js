@@ -4,6 +4,7 @@ const db = require('../config/db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
+const { verifyToken, requireRole } = require('../middleware/auth');
 
 // Registrierung
 router.post(
@@ -37,6 +38,48 @@ router.post(
       res.status(201).json({ token });
     } catch (err) {
       console.error('Fehler bei der Registrierung:', err);
+      res.status(500).json({ message: 'Serverfehler bei der Registrierung' });
+    }
+  }
+);
+
+// Moderator-Registrierung durch Admins
+router.post(
+  '/register-moderator',
+  verifyToken,
+  requireRole('admin'),
+  [
+    body('email').isEmail().withMessage('Ungültige Email'),
+    body('password').isLength({ min: 6 }).withMessage('Passwort zu kurz'),
+    body('name').optional().trim(),
+    body('company').optional().trim(),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(400)
+        .json({ message: 'Validierungsfehler', errors: errors.array() });
+    }
+
+    const { email, password, name, company } = req.body;
+    try {
+      const [existing] = await db.query('SELECT id FROM users WHERE email = ?', [
+        email,
+      ]);
+      if (existing.length > 0) {
+        return res.status(400).json({ message: 'E-Mail bereits registriert' });
+      }
+
+      const passwordHash = await bcrypt.hash(password, 10);
+      const [result] = await db.query(
+        'INSERT INTO users (email, password_hash, name, company, role) VALUES (?, ?, ?, ?, ?)',
+        [email, passwordHash, name || null, company || null, 'moderator']
+      );
+
+      res.status(201).json({ id: result.insertId });
+    } catch (err) {
+      console.error('Fehler bei der Moderator-Registrierung:', err);
       res.status(500).json({ message: 'Serverfehler bei der Registrierung' });
     }
   }
