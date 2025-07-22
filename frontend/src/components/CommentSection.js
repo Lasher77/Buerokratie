@@ -151,44 +151,46 @@ const CommentSection = ({ reportId }) => {
         <div>Noch keine Kommentare</div>
       ) : (
 
-        comments.map((c) => (
-          <CommentBox key={c.id}>
-            {editingId === c.id ? (
-              <Form onSubmit={handleEdit}>
-                <TextArea
-                  value={editText}
-                  onChange={(e) => setEditText(e.target.value)}
-                  required
-                />
-                <Input
-                  value={editLawRef}
-                  placeholder="Gesetzesbezug (optional)"
-                  onChange={(e) => setEditLawRef(e.target.value)}
-                />
-                <Button type="submit">Speichern</Button>
-                <Button type="button" onClick={() => setEditingId(null)}>
-                  Abbrechen
-                </Button>
-              </Form>
-            ) : (
-              <>
-                <div>{c.text}</div>
-                {c.law_reference && (
-                  <LawReference>{c.law_reference}</LawReference>
-                )}
-                {(user?.role === 'moderator' || user?.role === 'admin') && (
-                  <div>
-                    <Button type="button" onClick={() => startEdit(c)}>
-                      Bearbeiten
-                    </Button>
-                    <Button type="button" onClick={() => handleDelete(c.id)}>
-                      Löschen
-                    </Button>
-                  </div>
-                )}
-              </>
-            )
-          </CommentBox>
+        comments.map((c) => {
+          const editing = editingId === c.id;
+          return (
+            <CommentBox key={c.id}>
+              {editing ? (
+                <Form onSubmit={handleEdit}>
+                  <TextArea
+                    value={editText}
+                    onChange={(e) => setEditText(e.target.value)}
+                    required
+                  />
+                  <Input
+                    value={editLawRef}
+                    placeholder="Gesetzesbezug (optional)"
+                    onChange={(e) => setEditLawRef(e.target.value)}
+                  />
+                  <Button type="submit">Speichern</Button>
+                  <Button type="button" onClick={() => setEditingId(null)}>
+                    Abbrechen
+                  </Button>
+                </Form>
+              ) : (
+                <>
+                  <div>{c.text}</div>
+                  {c.law_reference && (
+                    <LawReference>{c.law_reference}</LawReference>
+                  )}
+                  {(user?.role === 'moderator' || user?.role === 'admin') && (
+                    <div>
+                      <Button type="button" onClick={() => startEdit(c)}>
+                        Bearbeiten
+                      </Button>
+                      <Button type="button" onClick={() => handleDelete(c.id)}>
+                        Löschen
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
+            </CommentBox>
           );
         })
       )}
