@@ -113,6 +113,19 @@ aber über `GET /api/reports/:id/comments` ansehen. In der Meldungsübersicht
 wird anhand eines Sprechblasensymbols (`💬`) angezeigt, ob zu einer Meldung
 bereits Kommentare vorliegen.
 
+### Moderatoren-Workflow
+
+1. **Moderator anlegen:** Nach dem Login als Administrator die Seite
+   `/register-moderator` aufrufen und die Daten des neuen Moderators
+   eingeben. Das Admin-Token wird automatisch übertragen.
+2. **Moderator-Login:** Moderatoren melden sich über `/login` an. Das
+   ausgegebene JWT wird im Browser gespeichert.
+3. **Kommentieren:** In der Detailansicht einer Meldung befindet sich
+   unterhalb der Beschreibung ein Eingabefeld. Angemeldete Moderatoren
+   und Administratoren können hier Kommentare hinterlegen.
+
+Für diese Erweiterung sind keine zusätzlichen Umgebungsvariablen nötig.
+
 ## Technologie-Stack
 
 ### Backend
