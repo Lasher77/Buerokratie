@@ -44,4 +44,54 @@ router.post(
   }
 );
 
+// Kommentar aktualisieren
+router.put(
+  '/:commentId',
+  verifyToken,
+  requireRole('moderator'),
+  [body('text').notEmpty().withMessage('Text ist erforderlich').trim(), body('law_reference').optional().trim()],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ message: 'Validierungsfehler', errors: errors.array() });
+    }
+
+    try {
+      const { text, law_reference } = req.body;
+      const [result] = await db.query(
+        'UPDATE comments SET text = ?, law_reference = ? WHERE id = ? AND report_id = ?',
+        [text, law_reference || null, req.params.commentId, req.params.id]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: 'Kommentar nicht gefunden' });
+      }
+
+      res.json({ id: parseInt(req.params.commentId), text, law_reference: law_reference || null });
+    } catch (error) {
+      console.error('Fehler beim Aktualisieren des Kommentars:', error);
+      res.status(500).json({ message: 'Serverfehler beim Aktualisieren des Kommentars' });
+    }
+  }
+);
+
+// Kommentar löschen
+router.delete('/:commentId', verifyToken, requireRole('moderator'), async (req, res) => {
+  try {
+    const [result] = await db.query(
+      'DELETE FROM comments WHERE id = ? AND report_id = ?',
+      [req.params.commentId, req.params.id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Kommentar nicht gefunden' });
+    }
+
+    res.json({ message: 'Kommentar gelöscht' });
+  } catch (error) {
+    console.error('Fehler beim Löschen des Kommentars:', error);
+    res.status(500).json({ message: 'Serverfehler beim Löschen des Kommentars' });
+  }
+});
+
 module.exports = router;

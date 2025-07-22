@@ -108,9 +108,12 @@ Authentifizierte Moderatoren oder Administratoren erhalten ihr JWT über
 `POST /api/auth/login` (oder `POST /api/auth/register` für neue Accounts).
 Das Token wird beim Anlegen eines Kommentars an
 `POST /api/reports/:id/comments` im Header `Authorization: Bearer <TOKEN>`
-gesendet. Normale Benutzer dürfen zwar keine Kommentare erstellen, können sie
+gesendet. Moderatoren können bestehende Kommentare zudem über
+`PUT /api/reports/:reportId/comments/:commentId` bearbeiten und über
+`DELETE /api/reports/:reportId/comments/:commentId` entfernen.
+Normale Benutzer dürfen zwar keine Kommentare erstellen, können sie
 aber über `GET /api/reports/:id/comments` ansehen. In der Meldungsübersicht
-wird anhand eines Sprechblasensymbols (`💬`) angezeigt, ob zu einer Meldung
+wird anhand eines Sprechblasensymbols ("💬") angezeigt, ob zu einer Meldung
 bereits Kommentare vorliegen.
 
 ### Moderatoren-Workflow
@@ -223,6 +226,8 @@ mysql -u bvmw_user -p buerokratieabbau < database_votes_extension.sql
 ### Kommentare
 - `GET /api/reports/:id/comments` - Kommentare zu einer Meldung abrufen
 - `POST /api/reports/:id/comments` - Kommentar zu einer Meldung erstellen (nur Moderator/Admin)
+- `PUT /api/reports/:reportId/comments/:commentId` - Kommentar bearbeiten (nur Moderator/Admin)
+- `DELETE /api/reports/:reportId/comments/:commentId` - Kommentar löschen (nur Moderator/Admin)
 
 ### Authentifizierung
 - `POST /api/auth/register` - Benutzer registrieren und JWT erhalten
