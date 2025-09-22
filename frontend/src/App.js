@@ -13,7 +13,7 @@ const PRIMARY_RED_DARK = '#b20510';
 const PRIMARY_RED_LIGHT = '#f9d8dc';
 
 const AppContainer = styled.div`
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto Condensed', sans-serif;
   color: #333;
 `;
 
