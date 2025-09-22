@@ -12,7 +12,7 @@ const Label = styled.label`
   display: block;
   margin-bottom: 8px;
   font-weight: bold;
-  color: #003E7E; /* BVMW Blau */
+  color: #E30613;
 `;
 
 const Select = styled.select`

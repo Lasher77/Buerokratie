@@ -15,7 +15,7 @@ const Container = styled.div`
 `;
 
 const Title = styled.h2`
-  color: #003E7E;
+  color: #E30613;
   margin-bottom: 20px;
 `;
 
@@ -36,12 +36,22 @@ const Input = styled.input`
 `;
 
 const Button = styled.button`
-  background-color: #003E7E;
+  background-color: #E30613;
   color: white;
   border: none;
   padding: 10px 20px;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: #b20510;
+  }
+
+  &:focus {
+    outline: 2px solid #f9d8dc;
+    outline-offset: 2px;
+  }
 `;
 
 const ErrorMsg = styled.div`

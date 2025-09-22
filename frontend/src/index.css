@@ -20,7 +20,8 @@ code {
 /* BVMW Farben */
 :root {
   --bvmw-red: #E30613;
-  --bvmw-blue: #003E7E;
+  --bvmw-primary: #E30613;
+  --bvmw-primary-dark: #b20510;
   --bvmw-gray: #58585A;
 }
 
