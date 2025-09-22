@@ -1,0 +1,23 @@
+module.exports = [
+  { key: 'A', name: 'Land- und Forstwirtschaft; Fischerei' },
+  { key: 'B', name: 'Bergbau und Gewinnung von Steinen und Erden' },
+  { key: 'C', name: 'Verarbeitendes Gewerbe / Herstellung von Waren' },
+  { key: 'D', name: 'Energieversorgung' },
+  { key: 'E', name: 'Wasserversorgung; Abwasser- und Abfallentsorgung und Beseitigung von Umweltverschmutzungen' },
+  { key: 'F', name: 'Baugewerbe' },
+  { key: 'G', name: 'Handel; Instandhaltung und Reparatur von Kraftfahrzeugen' },
+  { key: 'H', name: 'Verkehr und Lagerei' },
+  { key: 'I', name: 'Gastgewerbe / Beherbergung und Gastronomie' },
+  { key: 'J', name: 'Information und Kommunikation' },
+  { key: 'K', name: 'Finanz- und Versicherungsdienstleistungen' },
+  { key: 'L', name: 'Grundstücks- und Wohnungswesen' },
+  { key: 'M', name: 'Freiberufliche, wissenschaftliche und technische Dienstleistungen' },
+  { key: 'N', name: 'Sonstige wirtschaftliche Dienstleistungen' },
+  { key: 'O', name: 'Öffentliche Verwaltung, Verteidigung; Sozialversicherung' },
+  { key: 'P', name: 'Erziehung und Unterricht' },
+  { key: 'Q', name: 'Gesundheits- und Sozialwesen' },
+  { key: 'R', name: 'Kunst, Unterhaltung und Erholung' },
+  { key: 'S', name: 'Sonstige Dienstleistungen' },
+  { key: 'T', name: 'Private Haushalte mit Hauspersonal; Herstellung von Waren durch private Haushalte für den Eigenbedarf' },
+  { key: 'U', name: 'Exterritoriale Organisationen und Körperschaften' }
+];

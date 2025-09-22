@@ -6,6 +6,7 @@ import axios from 'axios';
 import { API_BASE } from '../api';
 
 import CategorySelect from './CategorySelect';
+import WZCategorySelect from './WZCategorySelect';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -122,6 +123,7 @@ const ReportForm = () => {
     title: Yup.string().required('Titel ist erforderlich'),
     description: Yup.string().required('Beschreibung ist erforderlich'),
     category_id: Yup.number().required('Kategorie ist erforderlich'),
+    wz_category_key: Yup.string().required('WZ-Oberkategorie ist erforderlich'),
     time_spent: Yup.number().min(0, 'Muss eine positive Zahl sein').nullable(),
     costs: Yup.number().min(0, 'Muss eine positive Zahl sein').nullable(),
     affected_employees: Yup.number().integer().min(0, 'Muss eine positive ganze Zahl sein').nullable(),
@@ -136,6 +138,7 @@ const ReportForm = () => {
       title: '',
       description: '',
       category_id: '',
+      wz_category_key: '',
       time_spent: '',
       costs: '',
       affected_employees: '',
@@ -154,6 +157,7 @@ const ReportForm = () => {
         title: values.title,
         description: values.description,
         category_id: Number(values.category_id),
+        wz_category_key: values.wz_category_key,
         time_spent: values.time_spent === '' ? null : Number(values.time_spent),
         costs: values.costs === '' ? null : Number(values.costs),
         affected_employees: values.affected_employees === '' ? null : Number(values.affected_employees),
@@ -231,6 +235,17 @@ const ReportForm = () => {
           />
           {formik.touched.category_id && formik.errors.category_id && (
             <ErrorText>{formik.errors.category_id}</ErrorText>
+          )}
+        </FormGroup>
+
+        <FormGroup>
+          <WZCategorySelect
+            value={formik.values.wz_category_key}
+            onChange={(value) => formik.setFieldValue('wz_category_key', value)}
+            required
+          />
+          {formik.touched.wz_category_key && formik.errors.wz_category_key && (
+            <ErrorText>{formik.errors.wz_category_key}</ErrorText>
           )}
         </FormGroup>
         
