@@ -9,7 +9,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterModeratorPage from './pages/RegisterModeratorPage';
 
 const AppContainer = styled.div`
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto Condensed', sans-serif;
   color: #333;
 `;
 
