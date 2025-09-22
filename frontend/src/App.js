@@ -8,6 +8,10 @@ import { AuthProvider, useAuth } from './AuthContext';
 import LoginPage from './pages/LoginPage';
 import RegisterModeratorPage from './pages/RegisterModeratorPage';
 
+const PRIMARY_RED = '#E30613';
+const PRIMARY_RED_DARK = '#b20510';
+const PRIMARY_RED_LIGHT = '#f9d8dc';
+
 const AppContainer = styled.div`
   font-family: Arial, sans-serif;
   color: #333;
@@ -41,7 +45,7 @@ const LogoImage = styled.img`
 const LogoText = styled.div`
   font-size: 20px;
   font-weight: bold;
-  color: #003E7E; /* BVMW Blau */
+  color: ${PRIMARY_RED};
 `;
 
 const Nav = styled.nav`
@@ -50,20 +54,50 @@ const Nav = styled.nav`
 `;
 
 const NavLink = styled(Link)`
-  color: #003E7E; /* BVMW Blau */
+  color: ${PRIMARY_RED};
   text-decoration: none;
   font-weight: bold;
   padding: 10px;
   border-radius: 4px;
-  transition: background-color 0.3s;
-  
+  transition: background-color 0.3s, color 0.3s;
+
   &:hover {
-    background-color: #f0f0f0;
+    background-color: ${PRIMARY_RED_LIGHT};
   }
-  
+
+  &:focus {
+    outline: 2px solid ${PRIMARY_RED_LIGHT};
+    outline-offset: 2px;
+  }
+
   &.active {
-    background-color: #003E7E; /* BVMW Blau */
-    color: white;
+    background-color: ${PRIMARY_RED};
+    color: #fff;
+  }
+
+  &.active:hover {
+    background-color: ${PRIMARY_RED_DARK};
+    color: #fff;
+  }
+`;
+
+const LogoutButton = styled.button`
+  color: #fff;
+  background-color: ${PRIMARY_RED};
+  border: none;
+  font-weight: bold;
+  padding: 10px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: ${PRIMARY_RED_DARK};
+  }
+
+  &:focus {
+    outline: 2px solid ${PRIMARY_RED_LIGHT};
+    outline-offset: 2px;
   }
 `;
 
@@ -74,8 +108,8 @@ const Main = styled.main`
 `;
 
 const Footer = styled.footer`
-  background-color: #003E7E; /* BVMW Blau */
-  color: white;
+  background-color: ${PRIMARY_RED_DARK};
+  color: #fff;
   padding: 30px 0;
   margin-top: 60px;
 `;
@@ -97,16 +131,22 @@ const FooterSection = styled.div`
 const FooterTitle = styled.h3`
   margin-bottom: 15px;
   font-size: 18px;
+  color: ${PRIMARY_RED_LIGHT};
 `;
 
 const FooterLink = styled.a`
-  color: white;
+  color: #fff;
   text-decoration: none;
   display: block;
   margin-bottom: 8px;
-  
+
   &:hover {
-    text-decoration: underline;
+    color: ${PRIMARY_RED_LIGHT};
+  }
+
+  &:focus {
+    outline: 2px solid ${PRIMARY_RED_LIGHT};
+    outline-offset: 2px;
   }
 `;
 
@@ -129,7 +169,7 @@ function Navigation() {
         <NavLink to="/register-moderator">Moderator registrieren</NavLink>
       )}
       {user && (
-        <button onClick={logout}>Logout</button>
+        <LogoutButton type="button" onClick={logout}>Logout</LogoutButton>
       )}
     </Nav>
   );

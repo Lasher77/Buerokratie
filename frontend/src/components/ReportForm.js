@@ -19,7 +19,7 @@ const FormContainer = styled.div`
 `;
 
 const FormTitle = styled.h2`
-  color: #003E7E; /* BVMW Blau */
+  color: #E30613;
   margin-bottom: 20px;
   font-size: 24px;
 `;
@@ -32,7 +32,7 @@ const Label = styled.label`
   display: block;
   margin-bottom: 8px;
   font-weight: bold;
-  color: #003E7E; /* BVMW Blau */
+  color: #E30613;
 `;
 
 const Input = styled.input`
@@ -79,7 +79,7 @@ const Checkbox = styled.input`
 `;
 
 const SubmitButton = styled.button`
-  background-color: #E30613; /* BVMW Rot */
+  background-color: #E30613;
   color: white;
   border: none;
   padding: 12px 20px;
@@ -88,11 +88,16 @@ const SubmitButton = styled.button`
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s;
-  
+
   &:hover {
-    background-color: #c00510;
+    background-color: #b20510;
   }
-  
+
+  &:focus {
+    outline: 2px solid #f9d8dc;
+    outline-offset: 2px;
+  }
+
   &:disabled {
     background-color: #ccc;
     cursor: not-allowed;
