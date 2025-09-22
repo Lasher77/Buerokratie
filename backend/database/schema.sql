@@ -32,6 +32,7 @@ CREATE TABLE reports (
   reporter_name VARCHAR(100),
   reporter_company VARCHAR(100),
   reporter_email VARCHAR(255),
+  wz_category_key VARCHAR(10),
   is_anonymous BOOLEAN DEFAULT FALSE,
   status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

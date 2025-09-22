@@ -35,12 +35,14 @@ const reportsRoutes = require('./routes/reports');
 const votesRoutes = require('./routes/votes');
 const commentsRoutes = require('./routes/comments');
 const authRoutes = require('./routes/auth');
+const wzCategoriesRoutes = require('./routes/wzCategories');
 
 app.use('/api/categories', categoriesRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/votes', votesRoutes);
 app.use('/api/reports/:id/comments', commentsRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/wz-categories', wzCategoriesRoutes);
 
 // Basis-Route
 app.get('/', (req, res) => {

@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 const { body, validationResult } = require('express-validator');
+const wzCategories = require('../data/wzCategories');
+
+const wzCategoryKeys = wzCategories.map((category) => category.key);
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -19,7 +22,15 @@ const reportValidationRules = [
   body('reporter_name').optional({ nullable: true }).trim().escape(),
   body('reporter_company').optional({ nullable: true }).trim().escape(),
   body('reporter_email').optional({ nullable: true }).isEmail().withMessage('Ungültige E-Mail-Adresse').normalizeEmail(),
-  body('is_anonymous').optional({ nullable: true }).isBoolean().withMessage('Anonymität muss ein Boolean-Wert sein')
+  body('is_anonymous').optional({ nullable: true }).isBoolean().withMessage('Anonymität muss ein Boolean-Wert sein'),
+  body('wz_category_key')
+    .notEmpty()
+    .withMessage('WZ-Oberkategorie ist erforderlich')
+    .bail()
+    .trim()
+    .toUpperCase()
+    .isIn(wzCategoryKeys)
+    .withMessage('Ungültige WZ-Oberkategorie')
 ];
 
 // Alle Meldungen abrufen (mit Bewertungsanzahl)
@@ -97,6 +108,7 @@ router.post('/', reportValidationRules, async (req, res) => {
       reporter_name,
       reporter_company,
       reporter_email,
+      wz_category_key,
       is_anonymous
     } = req.body;
 
@@ -117,10 +129,10 @@ router.post('/', reportValidationRules, async (req, res) => {
 
     // Meldung in die Datenbank einfügen
     const [result] = await db.query(
-      `INSERT INTO reports 
-       (title, description, category_id, time_spent, costs, affected_employees, 
-        reporter_name, reporter_company, reporter_email, is_anonymous) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO reports
+       (title, description, category_id, time_spent, costs, affected_employees,
+        reporter_name, reporter_company, reporter_email, wz_category_key, is_anonymous)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         title,
         description,
@@ -131,6 +143,7 @@ router.post('/', reportValidationRules, async (req, res) => {
         finalReporterName,
         finalReporterCompany,
         finalReporterEmail,
+        wz_category_key || null,
         is_anonymous || false
       ]
     );
