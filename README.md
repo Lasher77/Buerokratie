@@ -174,14 +174,14 @@ Passen Sie die Datei `backend/.env` an Ihre Umgebung an:
 ```
 PORT=5000
 ALLOWED_ORIGINS=http://localhost:3000
-DB_HOST=localhost
+DB_HOST=127.0.0.1
 DB_USER=bvmw_user
 DB_PASSWORD=changeme
 DB_NAME=buerokratieabbau
 JWT_SECRET=changeme
 ```
 
-**Wichtig:** Ersetzen Sie die Platzhalter `changeme` in `DB_PASSWORD` und `JWT_SECRET` durch sichere, individuelle Werte.
+**Wichtig:** Ersetzen Sie die Platzhalter `changeme` in `DB_PASSWORD` und `JWT_SECRET` durch sichere, individuelle Werte. Für `DB_HOST` wird `127.0.0.1` empfohlen, da dies zuverlässig auf die lokale Netzwerkschnittstelle zeigt und DNS- oder IPv6-Auflösungen von `localhost` umgeht.
 
 `ALLOWED_ORIGINS` legt fest, welche Urspruenge beim Aufruf der API zugelassen sind.
 Mehrere Eintraege koennen komma-getrennt angegeben werden.
