@@ -108,6 +108,37 @@ describe('GET /api/reports', () => {
   });
 });
 
+describe('GET /api/reports/pending', () => {
+  it('requires moderator authentication', async () => {
+    const res = await request(app).get('/api/reports/pending');
+    expect(res.statusCode).toBe(401);
+  });
+
+  it('rejects non-moderator users', async () => {
+    const token = jwt.sign({ id: 2, role: 'user' }, process.env.JWT_SECRET);
+
+    const res = await request(app)
+      .get('/api/reports/pending')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.statusCode).toBe(403);
+  });
+
+  it('returns all reports for moderators without status filter', async () => {
+    const token = jwt.sign({ id: 3, role: 'moderator' }, process.env.JWT_SECRET);
+    const reportRows = [baseApprovedReport, basePendingReport];
+    db.query.mockResolvedValueOnce([reportRows]);
+
+    const res = await request(app)
+      .get('/api/reports/pending')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual(reportRows);
+    expect(db.query.mock.calls[0][0]).not.toContain("WHERE r.status = 'approved'");
+  });
+});
+
 describe('GET /api/reports/:id', () => {
   it('returns single sanitized report', async () => {
     db.query.mockResolvedValueOnce([[baseApprovedReport]]);

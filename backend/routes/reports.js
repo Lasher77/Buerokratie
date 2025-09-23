@@ -83,6 +83,29 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Alle Meldungen für Moderatoren abrufen (ohne Statusfilter)
+router.get('/pending', verifyToken, requireRole('moderator'), async (req, res) => {
+  try {
+    const [rows] = await db.query(`
+      SELECT
+        ${PUBLIC_REPORT_SELECT},
+        ${HAS_COMMENTS_SELECT}
+      FROM reports r
+      LEFT JOIN categories c ON r.category_id = c.id
+      LEFT JOIN (
+        SELECT report_id, COUNT(*) as vote_count
+        FROM votes
+        GROUP BY report_id
+      ) v ON r.id = v.report_id
+      ORDER BY r.created_at DESC
+    `);
+    res.json(rows);
+  } catch (error) {
+    console.error('Fehler beim Abrufen der Meldungen für Moderatoren:', error);
+    res.status(500).json({ message: 'Serverfehler beim Abrufen der Meldungen' });
+  }
+});
+
 // Vertrauliche Meldungsdetails (nur Moderationsteams)
 router.get('/:id/confidential', verifyToken, requireRole('moderator'), async (req, res) => {
   try {
