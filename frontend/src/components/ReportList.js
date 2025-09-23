@@ -25,61 +25,176 @@ const FilterContainer = styled.div`
   flex-wrap: wrap;
   gap: 20px;
   margin-bottom: 30px;
-  padding: 15px;
-  background-color: #f5f5f5;
-  border-radius: 8px;
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(240, 243, 255, 0.95));
+  border-radius: 28px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  align-items: stretch;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 20px;
+  }
+`;
+
+const SearchForm = styled.form`
+  display: flex;
+  flex: 2;
+  min-width: 300px;
+  gap: 12px;
+  align-items: center;
+  padding: 16px 18px;
+  background-color: #fff;
+  border-radius: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 16px 35px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+
+  &:focus-within {
+    box-shadow: 0 20px 45px rgba(227, 6, 19, 0.18);
+    border-color: rgba(227, 6, 19, 0.2);
+    transform: translateY(-1px);
+  }
+
+  @media (max-width: 768px) {
+    flex: 1 1 100%;
+  }
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px;
+  }
 `;
 
 const SearchInput = styled.input`
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 16px;
   flex: 1;
   min-width: 200px;
-  
+  padding: 12px 20px;
+  border: none;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2d2d2d;
+  background: linear-gradient(135deg, #f7f7fb, #ffffff);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+
+  &::placeholder {
+    color: #9b9b9b;
+    font-weight: 500;
+  }
+
   &:focus {
-    border-color: #E30613; /* BVMW Rot */
+    box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.25);
     outline: none;
+    background-color: #fff;
+  }
+
+  @media (max-width: 600px) {
+    width: 100%;
   }
 `;
 
-const SearchButton = styled.button`
-  background-color: #E30613;
-  color: white;
+const buttonBaseStyles = `
   border: none;
-  padding: 10px 20px;
+  padding: 12px 26px;
   font-size: 16px;
-  border-radius: 4px;
+  font-weight: 700;
+  border-radius: 999px;
   cursor: pointer;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const SearchButton = styled.button`
+  ${buttonBaseStyles}
+  background: linear-gradient(135deg, #E30613, #b20510);
+  color: #fff;
+  box-shadow: 0 14px 30px rgba(227, 6, 19, 0.25);
 
   &:hover {
-    background-color: #b20510;
+    background: linear-gradient(135deg, #f11824, #c10511);
+    transform: translateY(-1px);
+    box-shadow: 0 18px 38px rgba(227, 6, 19, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 8px 20px rgba(227, 6, 19, 0.22);
   }
 
   &:focus {
-    outline: 2px solid #f9d8dc;
-    outline-offset: 2px;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.4);
+  }
+
+  @media (max-width: 600px) {
+    width: 100%;
   }
 `;
 
 const ResetButton = styled.button`
-  background-color: #58585A; /* BVMW Grau */
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  font-size: 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  
+  ${buttonBaseStyles}
+  background: linear-gradient(135deg, #f2f3f7, #ffffff);
+  color: #58585A;
+  border: 1px solid rgba(88, 88, 90, 0.15);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.1);
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   &:hover {
-    background-color: #444;
+    background: linear-gradient(135deg, #ffffff, #f6f7fa);
+    color: #2d2d2d;
+    transform: translateY(-1px);
+    box-shadow: 0 18px 38px rgba(0, 0, 0, 0.12);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 159, 227, 0.35);
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
   }
 `;
 
 const CategoryFilterContainer = styled.div`
   flex: 1;
-  min-width: 200px;
+  min-width: 220px;
+  background-color: #fff;
+  padding: 16px 18px;
+  border-radius: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 16px 35px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+
+  &:focus-within {
+    box-shadow: 0 20px 45px rgba(0, 159, 227, 0.18);
+    border-color: rgba(0, 159, 227, 0.2);
+    transform: translateY(-1px);
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
 const ReportCard = styled.div`
@@ -270,7 +385,7 @@ const ReportList = () => {
       <ListTitle>Übersicht bürokratischer Hemmnisse</ListTitle>
       
       <FilterContainer>
-        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '10px', flex: '2', minWidth: '300px' }}>
+        <SearchForm onSubmit={handleSearch}>
           <SearchInput
             type="text"
             placeholder="Suche nach Stichworten..."
@@ -278,7 +393,7 @@ const ReportList = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <SearchButton type="submit">Suchen</SearchButton>
-        </form>
+        </SearchForm>
         
         <CategoryFilterContainer>
           <CategorySelect
