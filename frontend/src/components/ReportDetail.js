@@ -300,20 +300,15 @@ const ReportDetail = () => {
               <MetaValue>{report.affected_employees}</MetaValue>
             </MetaItem>
           )}
-          
-          {!report.is_anonymous && report.reporter_name && (
-            <MetaItem>
-              <MetaLabel>Gemeldet von</MetaLabel>
-              <MetaValue>{report.reporter_name}</MetaValue>
-            </MetaItem>
-          )}
-          
-          {!report.is_anonymous && report.reporter_company && (
-            <MetaItem>
-              <MetaLabel>Unternehmen</MetaLabel>
-              <MetaValue>{report.reporter_company}</MetaValue>
-            </MetaItem>
-          )}
+
+          <MetaItem>
+            <MetaLabel>Kontakthinweis</MetaLabel>
+            <MetaValue>
+              {report.is_anonymous
+                ? 'Diese Meldung wurde anonym eingereicht. Kontaktdaten liegen nicht vor.'
+                : 'Kontaktdaten sind nur für Moderationsteams sichtbar.'}
+            </MetaValue>
+          </MetaItem>
         </MetaSection>
         
         <VotingSection>
