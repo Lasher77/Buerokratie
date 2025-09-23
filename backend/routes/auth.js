@@ -6,6 +6,8 @@ const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const { verifyToken, requireRole } = require('../middleware/auth');
 
+const tokenOptions = { expiresIn: process.env.JWT_EXPIRES_IN || '24h' };
+
 // Registrierung
 router.post(
   '/register',
@@ -34,7 +36,7 @@ router.post(
         [email, passwordHash, name || null, company || null]
       );
 
-      const token = jwt.sign({ id: result.insertId, role: 'user' }, process.env.JWT_SECRET);
+      const token = jwt.sign({ id: result.insertId, role: 'user' }, process.env.JWT_SECRET, tokenOptions);
       res.status(201).json({ token });
     } catch (err) {
       console.error('Fehler bei der Registrierung:', err);
@@ -109,7 +111,7 @@ router.post(
       }
 
       await db.query('UPDATE users SET last_login = NOW() WHERE id = ?', [user.id]);
-      const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET);
+      const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, tokenOptions);
       res.json({ token });
     } catch (err) {
       console.error('Fehler beim Login:', err);

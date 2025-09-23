@@ -13,6 +13,9 @@ function verifyToken(req, res, next) {
     req.user = { id: decoded.id, role: decoded.role };
     next();
   } catch (err) {
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Token abgelaufen' });
+    }
     return res.status(401).json({ message: 'Ungültiger Token' });
   }
 }

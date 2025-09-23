@@ -11,6 +11,11 @@ const db = require('../config/db');
 
 beforeAll(() => {
   process.env.JWT_SECRET = 'testsecret';
+  process.env.JWT_EXPIRES_IN = '1h';
+});
+
+beforeEach(() => {
+  db.query.mockReset();
 });
 
 describe('POST /api/auth/register', () => {
@@ -24,6 +29,10 @@ describe('POST /api/auth/register', () => {
 
     expect(res.statusCode).toBe(201);
     expect(res.body.token).toBeDefined();
+
+    const decoded = jwt.decode(res.body.token);
+    expect(decoded.exp).toBeDefined();
+    expect(decoded.exp).toBeGreaterThan(Math.floor(Date.now() / 1000));
   });
 });
 
@@ -39,6 +48,10 @@ describe('POST /api/auth/login', () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body.token).toBeDefined();
+
+    const decoded = jwt.decode(res.body.token);
+    expect(decoded.exp).toBeDefined();
+    expect(decoded.exp).toBeGreaterThan(Math.floor(Date.now() / 1000));
   });
 
   it('rejects invalid password', async () => {
@@ -55,7 +68,9 @@ describe('POST /api/auth/login', () => {
 
 describe('POST /api/auth/register-moderator', () => {
   it('allows admin to create moderator', async () => {
-    const token = jwt.sign({ id: 1, role: 'admin' }, process.env.JWT_SECRET);
+    const token = jwt.sign({ id: 1, role: 'admin' }, process.env.JWT_SECRET, {
+      expiresIn: '1h',
+    });
     db.query.mockResolvedValueOnce([[]]); // check existing
     db.query.mockResolvedValueOnce([{ insertId: 2 }]); // insert
 
@@ -71,7 +86,9 @@ describe('POST /api/auth/register-moderator', () => {
   });
 
   it('rejects non-admin user', async () => {
-    const token = jwt.sign({ id: 1, role: 'user' }, process.env.JWT_SECRET);
+    const token = jwt.sign({ id: 1, role: 'user' }, process.env.JWT_SECRET, {
+      expiresIn: '1h',
+    });
     const res = await request(app)
       .post('/api/auth/register-moderator')
       .set('Authorization', `Bearer ${token}`)
@@ -86,5 +103,19 @@ describe('POST /api/auth/register-moderator', () => {
       .send({ email: 'mod@example.com', password: 'secret' });
 
     expect(res.statusCode).toBe(401);
+  });
+
+  it('rejects expired token', async () => {
+    const expiredToken = jwt.sign({ id: 1, role: 'admin' }, process.env.JWT_SECRET, {
+      expiresIn: '-10s',
+    });
+
+    const res = await request(app)
+      .post('/api/auth/register-moderator')
+      .set('Authorization', `Bearer ${expiredToken}`)
+      .send({ email: 'mod@example.com', password: 'secret' });
+
+    expect(res.statusCode).toBe(401);
+    expect(res.body.message).toBe('Token abgelaufen');
   });
 });
