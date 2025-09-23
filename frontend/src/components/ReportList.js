@@ -260,6 +260,13 @@ const ReportDescription = styled.p`
   line-height: 1.5;
 `;
 
+const ContactNotice = styled.p`
+  margin: -5px 0 20px 0;
+  color: #666;
+  font-size: 13px;
+  font-style: italic;
+`;
+
 const ReportMeta = styled.div`
   display: flex;
   justify-content: space-between;
@@ -421,6 +428,7 @@ const ReportList = () => {
                 ? `${report.description.substring(0, 300)}...`
                 : report.description}
             </ReportDescription>
+            <ContactNotice>Kontaktdaten sind nur für Moderationsteams sichtbar.</ContactNotice>
             <ReportMeta>
               <ReportDate>Gemeldet am {formatDate(report.created_at)}</ReportDate>
               <ReportStats>

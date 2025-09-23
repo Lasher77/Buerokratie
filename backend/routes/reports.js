@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 const { body, validationResult } = require('express-validator');
+const { verifyToken, requireRole } = require('../middleware/auth');
 const wzCategories = require('../data/wzCategories');
 
 const wzCategoryKeys = wzCategories.map((category) => category.key);
@@ -33,18 +34,43 @@ const reportValidationRules = [
     .withMessage('Ungültige WZ-Oberkategorie')
 ];
 
+const PUBLIC_REPORT_FIELDS = `
+      r.id,
+      r.title,
+      r.description,
+      r.category_id,
+      c.name as category_name,
+      r.time_spent,
+      r.costs,
+      r.affected_employees,
+      r.wz_category_key,
+      r.is_anonymous,
+      r.status,
+      r.created_at,
+      r.updated_at
+`;
+
+const PUBLIC_REPORT_SELECT = `
+      ${PUBLIC_REPORT_FIELDS},
+      COALESCE(v.vote_count, 0) as vote_count
+`;
+
+const HAS_COMMENTS_SELECT = `
+      EXISTS (SELECT 1 FROM comments WHERE report_id = r.id) AS has_comments
+`;
+
 // Alle Meldungen abrufen (mit Bewertungsanzahl)
 router.get('/', async (req, res) => {
   try {
     const [rows] = await db.query(`
-      SELECT r.*, c.name as category_name,
-             COALESCE(v.vote_count, 0) as vote_count,
-             EXISTS (SELECT 1 FROM comments WHERE report_id = r.id) AS has_comments
-      FROM reports r 
-      LEFT JOIN categories c ON r.category_id = c.id 
+      SELECT
+        ${PUBLIC_REPORT_SELECT},
+        ${HAS_COMMENTS_SELECT}
+      FROM reports r
+      LEFT JOIN categories c ON r.category_id = c.id
       LEFT JOIN (
-        SELECT report_id, COUNT(*) as vote_count 
-        FROM votes 
+        SELECT report_id, COUNT(*) as vote_count
+        FROM votes
         GROUP BY report_id
       ) v ON r.id = v.report_id
       ORDER BY r.created_at DESC
@@ -56,17 +82,48 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Vertrauliche Meldungsdetails (nur Moderationsteams)
+router.get('/:id/confidential', verifyToken, requireRole('moderator'), async (req, res) => {
+  try {
+    const [rows] = await db.query(`
+      SELECT
+        r.*,
+        c.name as category_name,
+        COALESCE(v.vote_count, 0) as vote_count,
+        ${HAS_COMMENTS_SELECT}
+      FROM reports r
+      LEFT JOIN categories c ON r.category_id = c.id
+      LEFT JOIN (
+        SELECT report_id, COUNT(*) as vote_count
+        FROM votes
+        GROUP BY report_id
+      ) v ON r.id = v.report_id
+      WHERE r.id = ?
+    `, [req.params.id]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Meldung nicht gefunden' });
+    }
+
+    res.json(rows[0]);
+  } catch (error) {
+    console.error('Fehler beim Abrufen vertraulicher Meldungsdetails:', error);
+    res.status(500).json({ message: 'Serverfehler beim Abrufen vertraulicher Meldungsdetails' });
+  }
+});
+
 // Eine Meldung nach ID abrufen (mit Bewertungsanzahl)
 router.get('/:id', async (req, res) => {
   try {
     const [rows] = await db.query(`
-      SELECT r.*, c.name as category_name,
-             COALESCE(v.vote_count, 0) as vote_count
-      FROM reports r 
-      LEFT JOIN categories c ON r.category_id = c.id 
+      SELECT
+        ${PUBLIC_REPORT_SELECT},
+        ${HAS_COMMENTS_SELECT}
+      FROM reports r
+      LEFT JOIN categories c ON r.category_id = c.id
       LEFT JOIN (
-        SELECT report_id, COUNT(*) as vote_count 
-        FROM votes 
+        SELECT report_id, COUNT(*) as vote_count
+        FROM votes
         GROUP BY report_id
       ) v ON r.id = v.report_id
       WHERE r.id = ?
@@ -154,9 +211,16 @@ router.post('/', reportValidationRules, async (req, res) => {
 
     // Neue Meldung mit Kategoriename abrufen
     const [newReport] = await db.query(`
-      SELECT r.*, c.name as category_name, 0 as vote_count
-      FROM reports r 
-      LEFT JOIN categories c ON r.category_id = c.id 
+      SELECT
+        ${PUBLIC_REPORT_SELECT},
+        ${HAS_COMMENTS_SELECT}
+      FROM reports r
+      LEFT JOIN categories c ON r.category_id = c.id
+      LEFT JOIN (
+        SELECT report_id, COUNT(*) as vote_count
+        FROM votes
+        GROUP BY report_id
+      ) v ON r.id = v.report_id
       WHERE r.id = ?
     `, [result.insertId]);
 
@@ -171,13 +235,14 @@ router.post('/', reportValidationRules, async (req, res) => {
 router.get('/category/:categoryId', async (req, res) => {
   try {
     const [rows] = await db.query(`
-      SELECT r.*, c.name as category_name,
-             COALESCE(v.vote_count, 0) as vote_count
-      FROM reports r 
-      LEFT JOIN categories c ON r.category_id = c.id 
+      SELECT
+        ${PUBLIC_REPORT_SELECT},
+        ${HAS_COMMENTS_SELECT}
+      FROM reports r
+      LEFT JOIN categories c ON r.category_id = c.id
       LEFT JOIN (
-        SELECT report_id, COUNT(*) as vote_count 
-        FROM votes 
+        SELECT report_id, COUNT(*) as vote_count
+        FROM votes
         GROUP BY report_id
       ) v ON r.id = v.report_id
       WHERE r.category_id = ? 
@@ -195,15 +260,16 @@ router.get('/category/:categoryId', async (req, res) => {
 router.get('/search/:query', async (req, res) => {
   try {
     const searchQuery = `%${req.params.query}%`;
-    
+
     const [rows] = await db.query(`
-      SELECT r.*, c.name as category_name,
-             COALESCE(v.vote_count, 0) as vote_count
-      FROM reports r 
-      LEFT JOIN categories c ON r.category_id = c.id 
+      SELECT
+        ${PUBLIC_REPORT_SELECT},
+        ${HAS_COMMENTS_SELECT}
+      FROM reports r
+      LEFT JOIN categories c ON r.category_id = c.id
       LEFT JOIN (
-        SELECT report_id, COUNT(*) as vote_count 
-        FROM votes 
+        SELECT report_id, COUNT(*) as vote_count
+        FROM votes
         GROUP BY report_id
       ) v ON r.id = v.report_id
       WHERE r.title LIKE ? OR r.description LIKE ? 
