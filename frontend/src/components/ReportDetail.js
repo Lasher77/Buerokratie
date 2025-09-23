@@ -4,6 +4,7 @@ import axios from 'axios';
 import { API_BASE } from '../api';
 import styled from 'styled-components';
 import CommentSection from './CommentSection';
+import { useAuth } from '../AuthContext';
 
 
 const DetailContainer = styled.div`
@@ -169,6 +170,7 @@ const ReportDetail = () => {
   const [voteStatus, setVoteStatus] = useState({ hasVoted: false, voteCount: 0 });
   const [isVoting, setIsVoting] = useState(false);
   const [sessionId, setSessionId] = useState(null);
+  const { user } = useAuth();
 
   // Die Session-ID wird vom Backend vergeben und hier lediglich persistiert.
   useEffect(() => {
@@ -181,13 +183,30 @@ const ReportDetail = () => {
   // Meldung laden
   useEffect(() => {
     const fetchReport = async () => {
+      setLoading(true);
+      setError(null);
+
       try {
-        const response = await axios.get(`${API_BASE}/api/reports/${id}`);
+        const isModerator = user && (user.role === 'moderator' || user.role === 'admin');
+        const token = localStorage.getItem('authToken');
+        const useConfidentialEndpoint = Boolean(isModerator && token);
+        const endpoint = useConfidentialEndpoint
+          ? `${API_BASE}/api/reports/${id}/confidential`
+          : `${API_BASE}/api/reports/${id}`;
+        const config = useConfidentialEndpoint
+          ? { headers: { Authorization: `Bearer ${token}` } }
+          : undefined;
+
+        const response = await axios.get(endpoint, config);
         setReport(response.data);
         setLoading(false);
       } catch (err) {
         console.error('Fehler beim Laden der Meldung:', err);
-        setError('Meldung konnte nicht geladen werden.');
+        if (err.response?.status === 401 || err.response?.status === 403) {
+          setError('Bitte melden Sie sich an, um vertrauliche Meldungsdetails zu sehen.');
+        } else {
+          setError('Meldung konnte nicht geladen werden.');
+        }
         setLoading(false);
       }
     };
@@ -195,7 +214,7 @@ const ReportDetail = () => {
     if (id) {
       fetchReport();
     }
-  }, [id]);
+  }, [id, user]);
 
   // Bewertungsstatus laden
   useEffect(() => {
