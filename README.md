@@ -179,9 +179,12 @@ DB_USER=bvmw_user
 DB_PASSWORD=changeme
 DB_NAME=buerokratieabbau
 JWT_SECRET=changeme
+JWT_EXPIRES_IN=24h
 ```
 
 **Wichtig:** Ersetzen Sie die Platzhalter `changeme` in `DB_PASSWORD` und `JWT_SECRET` durch sichere, individuelle Werte. Für `DB_HOST` wird `127.0.0.1` empfohlen, da dies zuverlässig auf die lokale Netzwerkschnittstelle zeigt und DNS- oder IPv6-Auflösungen von `localhost` umgeht.
+
+`JWT_EXPIRES_IN` legt fest, wie lange neu ausgestellte JSON Web Tokens gültig sind (Standard: 24 Stunden).
 
 `ALLOWED_ORIGINS` legt fest, welche Urspruenge beim Aufruf der API zugelassen sind.
 Mehrere Eintraege koennen komma-getrennt angegeben werden.
