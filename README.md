@@ -45,6 +45,9 @@ mysql -u BENUTZERNAME -p buerokratieabbau < ../database_votes_extension.sql
 # führen Sie zusaetzlich folgendes Skript aus:
 mysql -u BENUTZERNAME -p buerokratieabbau < ../database_comments_extension.sql
 
+# Für Installationen vor Einführung der WZ-Kategorien führen Sie außerdem aus:
+mysql -u BENUTZERNAME -p buerokratieabbau < ../database_wz_category_extension.sql
+
 # Server starten
 npm run dev
 ```
@@ -211,7 +214,28 @@ mysql -u bvmw_user -p buerokratieabbau < backend/database/schema.sql
 
 # Erweiterung für das Bewertungssystem einspielen
 mysql -u bvmw_user -p buerokratieabbau < database_votes_extension.sql
+
+# Für Installationen vor Einführung der Kommentarfunktion
+mysql -u bvmw_user -p buerokratieabbau < database_comments_extension.sql
+
+# Für Installationen vor Einführung der WZ-Kategorien
+mysql -u bvmw_user -p buerokratieabbau < database_wz_category_extension.sql
+
 ```
+
+## Upgrade bestehender Installationen
+
+Für Deployments, die vor Einführung der WZ-Kategorisierung aufgesetzt wurden,
+führen Sie nach dem Votes- und Comments-Skript zusätzlich das neue Skript aus:
+
+```bash
+mysql -u bvmw_user -p buerokratieabbau < database_votes_extension.sql
+mysql -u bvmw_user -p buerokratieabbau < database_comments_extension.sql
+mysql -u bvmw_user -p buerokratieabbau < database_wz_category_extension.sql
+```
+
+Dies ergänzt die Spalte `wz_category_key` in der Tabelle `reports`, ohne
+bereits bestehende Daten zu verändern.
 
 ## API-Endpunkte
 

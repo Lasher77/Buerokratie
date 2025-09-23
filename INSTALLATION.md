@@ -49,7 +49,18 @@ mysql -u bvmw_user -p buerokratieabbau < backend/database/schema.sql
 
 # Erweiterung für das Bewertungssystem einspielen
 mysql -u bvmw_user -p buerokratieabbau < database_votes_extension.sql
+
+# Für Installationen vor Einführung der Kommentarfunktion
+mysql -u bvmw_user -p buerokratieabbau < database_comments_extension.sql
+
+# Für Installationen vor Einführung der WZ-Kategorien
+mysql -u bvmw_user -p buerokratieabbau < database_wz_category_extension.sql
+
 ```
+
+> **Hinweis:** Führen Sie bestehende Deployments in genau dieser Reihenfolge
+> (Votes → Comments → WZ-Kategorien) aus, um die Datenbankstruktur sicher zu
+> aktualisieren.
 
 ### 3. Backend starten
 
