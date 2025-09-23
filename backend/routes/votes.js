@@ -10,15 +10,9 @@ const { randomUUID } = require('crypto');
 router.post('/:reportId/vote', async (req, res) => {
   try {
     const reportId = req.params.reportId;
-    let sessionId = req.headers['x-session-id'] || req.body.sessionId;
-    
-    // Session-ID generieren falls nicht vorhanden
-    if (!sessionId) {
-      sessionId = randomUUID();
-    }
-
-    const ipAddress = req.ip || req.connection.remoteAddress;
-    const userAgent = req.headers['user-agent'];
+    let sessionId = req.headers['x-session-id'] || null;
+    const ipAddress = req.ip || req.connection?.remoteAddress || null;
+    const userAgent = req.headers['user-agent'] || null;
 
     // Prüfen, ob die Meldung existiert
     const [reportCheck] = await db.query('SELECT id FROM reports WHERE id = ?', [reportId]);
@@ -26,17 +20,41 @@ router.post('/:reportId/vote', async (req, res) => {
       return res.status(404).json({ message: 'Meldung nicht gefunden' });
     }
 
-    // Prüfen, ob bereits bewertet wurde
-    const [existingVote] = await db.query(
-      'SELECT id FROM votes WHERE report_id = ? AND session_id = ?',
-      [reportId, sessionId]
-    );
+    if (!sessionId) {
+      // Prüfen, ob bereits ein Eintrag für diese IP/User-Agent-Kombination existiert
+      if (ipAddress) {
+        const [existingContextVote] = await db.query(
+          `SELECT session_id FROM votes
+           WHERE report_id = ? AND ip_address = ?
+             AND (user_agent = ? OR (user_agent IS NULL AND ? IS NULL))
+           LIMIT 1`,
+          [reportId, ipAddress, userAgent, userAgent]
+        );
 
-    if (existingVote.length > 0) {
-      return res.status(400).json({ 
-        message: 'Sie haben diese Meldung bereits bewertet',
-        sessionId: sessionId
-      });
+        if (existingContextVote.length > 0) {
+          return res.status(409).json({
+            message: 'Sie haben diese Meldung bereits bewertet',
+            sessionId: existingContextVote[0].session_id,
+            hasVoted: true
+          });
+        }
+      }
+
+      sessionId = randomUUID();
+    } else {
+      // Prüfen, ob bereits bewertet wurde
+      const [existingVote] = await db.query(
+        'SELECT id FROM votes WHERE report_id = ? AND session_id = ?',
+        [reportId, sessionId]
+      );
+
+      if (existingVote.length > 0) {
+        return res.status(400).json({
+          message: 'Sie haben diese Meldung bereits bewertet',
+          sessionId: sessionId,
+          hasVoted: true
+        });
+      }
     }
 
     // Bewertung hinzufügen
@@ -63,9 +81,13 @@ router.post('/:reportId/vote', async (req, res) => {
     
     // Duplikat-Fehler abfangen
     if (error.code === 'ER_DUP_ENTRY') {
-      return res.status(400).json({ message: 'Sie haben diese Meldung bereits bewertet' });
+      return res.status(409).json({
+        message: 'Sie haben diese Meldung bereits bewertet',
+        sessionId: sessionId || null,
+        hasVoted: true
+      });
     }
-    
+
     res.status(500).json({ message: 'Serverfehler beim Hinzufügen der Bewertung' });
   }
 });
@@ -74,7 +96,7 @@ router.post('/:reportId/vote', async (req, res) => {
 router.delete('/:reportId/vote', async (req, res) => {
   try {
     const reportId = req.params.reportId;
-    const sessionId = req.headers['x-session-id'] || req.body.sessionId;
+    const sessionId = req.headers['x-session-id'] || null;
 
     if (!sessionId) {
       return res.status(400).json({ message: 'Session-ID erforderlich' });

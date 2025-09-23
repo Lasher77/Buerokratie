@@ -170,14 +170,12 @@ const ReportDetail = () => {
   const [isVoting, setIsVoting] = useState(false);
   const [sessionId, setSessionId] = useState(null);
 
-  // Session-ID aus localStorage oder generieren
+  // Die Session-ID wird vom Backend vergeben und hier lediglich persistiert.
   useEffect(() => {
-    let storedSessionId = localStorage.getItem('bvmw-session-id');
-    if (!storedSessionId) {
-      storedSessionId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      localStorage.setItem('bvmw-session-id', storedSessionId);
+    const storedSessionId = localStorage.getItem('bvmw-session-id');
+    if (storedSessionId) {
+      setSessionId(storedSessionId);
     }
-    setSessionId(storedSessionId);
   }, []);
 
   // Meldung laden
@@ -202,13 +200,20 @@ const ReportDetail = () => {
   // Bewertungsstatus laden
   useEffect(() => {
     const fetchVoteStatus = async () => {
-      if (!sessionId || !id) return;
+      if (!id) return;
 
       try {
-        const response = await axios.get(`${API_BASE}/api/votes/${id}/vote-status`, {
-          headers: { 'x-session-id': sessionId }
-        });
+        const response = await axios.get(
+          `${API_BASE}/api/votes/${id}/vote-status`,
+          sessionId
+            ? { headers: { 'x-session-id': sessionId } }
+            : undefined
+        );
         setVoteStatus(response.data);
+        if (!sessionId && response.data.sessionId) {
+          localStorage.setItem('bvmw-session-id', response.data.sessionId);
+          setSessionId(response.data.sessionId);
+        }
       } catch (err) {
         console.error('Fehler beim Laden des Bewertungsstatus:', err);
       }
@@ -233,18 +238,31 @@ const ReportDetail = () => {
         });
       } else {
         // Bewertung hinzufügen
-        const response = await axios.post(`${API_BASE}/api/votes/${id}/vote`, {}, {
-          headers: { 'x-session-id': sessionId }
-        });
+        const response = await axios.post(
+          `${API_BASE}/api/votes/${id}/vote`,
+          {},
+          sessionId
+            ? { headers: { 'x-session-id': sessionId } }
+            : undefined
+        );
         setVoteStatus({
           hasVoted: true,
           voteCount: response.data.voteCount
         });
+        if (response.data.sessionId) {
+          localStorage.setItem('bvmw-session-id', response.data.sessionId);
+          setSessionId(response.data.sessionId);
+        }
       }
     } catch (err) {
       console.error('Fehler beim Bewerten:', err);
-      if (err.response?.status === 400) {
-        // Bereits bewertet - Status aktualisieren
+      if (err.response?.status === 400 || err.response?.status === 409) {
+        // Bereits bewertet - Status aktualisieren und Session-ID übernehmen
+        const existingSessionId = err.response?.data?.sessionId;
+        if (existingSessionId) {
+          localStorage.setItem('bvmw-session-id', existingSessionId);
+          setSessionId(existingSessionId);
+        }
         setVoteStatus(prev => ({ ...prev, hasVoted: true }));
       }
     } finally {
