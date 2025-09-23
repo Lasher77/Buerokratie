@@ -106,6 +106,55 @@ router.get('/pending', verifyToken, requireRole('moderator'), async (req, res) =
   }
 });
 
+// Status einer Meldung umschalten
+router.patch('/:id/status', verifyToken, requireRole('moderator'), async (req, res) => {
+  const reportId = req.params.id;
+
+  try {
+    const [existing] = await db.query('SELECT status FROM reports WHERE id = ?', [reportId]);
+
+    if (existing.length === 0) {
+      return res.status(404).json({ message: 'Meldung nicht gefunden' });
+    }
+
+    const currentStatus = existing[0].status;
+    let newStatus;
+
+    if (currentStatus === 'approved') {
+      newStatus = 'pending';
+    } else if (currentStatus === 'pending') {
+      newStatus = 'approved';
+    } else {
+      newStatus = 'pending';
+    }
+
+    await db.query('UPDATE reports SET status = ?, updated_at = NOW() WHERE id = ?', [newStatus, reportId]);
+
+    const [updatedReport] = await db.query(`
+      SELECT
+        ${PUBLIC_REPORT_SELECT},
+        ${HAS_COMMENTS_SELECT}
+      FROM reports r
+      LEFT JOIN categories c ON r.category_id = c.id
+      LEFT JOIN (
+        SELECT report_id, COUNT(*) as vote_count
+        FROM votes
+        GROUP BY report_id
+      ) v ON r.id = v.report_id
+      WHERE r.id = ?
+    `, [reportId]);
+
+    if (updatedReport.length === 0) {
+      return res.status(404).json({ message: 'Meldung nicht gefunden' });
+    }
+
+    res.json(updatedReport[0]);
+  } catch (error) {
+    console.error('Fehler beim Aktualisieren des Meldungsstatus:', error);
+    res.status(500).json({ message: 'Serverfehler beim Aktualisieren des Meldungsstatus' });
+  }
+});
+
 // Vertrauliche Meldungsdetails (nur Moderationsteams)
 router.get('/:id/confidential', verifyToken, requireRole('moderator'), async (req, res) => {
   try {
