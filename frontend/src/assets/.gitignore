@@ -1,0 +1,3 @@
+# Ignore manually supplied assets (e.g., bvmw-logo.png)
+*
+!.gitignore
