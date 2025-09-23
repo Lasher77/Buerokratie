@@ -7,6 +7,8 @@ import ReportDetail from './components/ReportDetail';
 import { AuthProvider, useAuth } from './AuthContext';
 import LoginPage from './pages/LoginPage';
 import RegisterModeratorPage from './pages/RegisterModeratorPage';
+import HomePage from './pages/HomePage';
+import bvmwLogo from './assets/bvmw-logo.png';
 
 const PRIMARY_RED = '#E30613';
 const PRIMARY_RED_DARK = '#b20510';
@@ -162,7 +164,8 @@ function Navigation() {
   const { user, logout } = useAuth();
   return (
     <Nav>
-      <NavLink to="/">Übersicht</NavLink>
+      <NavLink to="/">Startseite</NavLink>
+      <NavLink to="/meldungen">Meldungsübersicht</NavLink>
       <NavLink to="/melden">Hemmnis melden</NavLink>
       {!user && <NavLink to="/login">Login</NavLink>}
       {user?.role === 'admin' && (
@@ -183,6 +186,7 @@ function App() {
         <Header>
           <HeaderContent>
             <Logo>
+              <LogoImage src={bvmwLogo} alt="Der Mittelstand. BVMW" />
               <LogoText>BVMW Bürokratieabbau</LogoText>
             </Logo>
             <Navigation />
@@ -191,7 +195,8 @@ function App() {
         
         <Main>
           <Routes>
-            <Route path="/" element={<ReportList />} />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/meldungen" element={<ReportList />} />
             <Route path="/melden" element={<ReportForm />} />
             <Route path="/meldung/:id" element={<ReportDetail />} />
             <Route path="/login" element={<LoginPage />} />
