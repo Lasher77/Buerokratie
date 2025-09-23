@@ -73,6 +73,7 @@ router.get('/', async (req, res) => {
         FROM votes
         GROUP BY report_id
       ) v ON r.id = v.report_id
+      WHERE r.status = 'approved'
       ORDER BY r.created_at DESC
     `);
     res.json(rows);
@@ -126,7 +127,7 @@ router.get('/:id', async (req, res) => {
         FROM votes
         GROUP BY report_id
       ) v ON r.id = v.report_id
-      WHERE r.id = ?
+      WHERE r.id = ? AND r.status = 'approved'
     `, [req.params.id]);
     
     if (rows.length === 0) {
@@ -188,8 +189,8 @@ router.post('/', reportValidationRules, async (req, res) => {
     const [result] = await db.query(
       `INSERT INTO reports
        (title, description, category_id, time_spent, costs, affected_employees,
-        reporter_name, reporter_company, reporter_email, wz_category_key, is_anonymous)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        reporter_name, reporter_company, reporter_email, wz_category_key, is_anonymous, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         title,
         description,
@@ -201,7 +202,8 @@ router.post('/', reportValidationRules, async (req, res) => {
         finalReporterCompany,
         finalReporterEmail,
         wz_category_key || null,
-        is_anonymous || false
+        is_anonymous || false,
+        'pending'
       ]
     );
 
@@ -245,7 +247,7 @@ router.get('/category/:categoryId', async (req, res) => {
         FROM votes
         GROUP BY report_id
       ) v ON r.id = v.report_id
-      WHERE r.category_id = ? 
+      WHERE r.category_id = ? AND r.status = 'approved'
       ORDER BY r.created_at DESC
     `, [req.params.categoryId]);
     
@@ -272,7 +274,7 @@ router.get('/search/:query', async (req, res) => {
         FROM votes
         GROUP BY report_id
       ) v ON r.id = v.report_id
-      WHERE r.title LIKE ? OR r.description LIKE ? 
+      WHERE (r.title LIKE ? OR r.description LIKE ?) AND r.status = 'approved'
       ORDER BY r.created_at DESC
     `, [searchQuery, searchQuery]);
     
