@@ -94,6 +94,8 @@ test('fetches moderator endpoint with auth header when user is moderator', async
   });
   expect(screen.getByText('Pending')).toBeInTheDocument();
   expect(screen.getByText('Approved')).toBeInTheDocument();
+  expect(screen.getByLabelText('Freigabestatus: In Prüfung')).toBeInTheDocument();
+  expect(screen.getByLabelText('Freigabestatus: Freigegeben')).toBeInTheDocument();
   localStorage.removeItem('authToken');
 });
 
@@ -122,4 +124,5 @@ test('regular users fall back to public endpoint', async () => {
   await waitFor(() => expect(screen.queryByText('Meldungen werden geladen...')).not.toBeInTheDocument());
   expect(screen.queryByText('Pending')).not.toBeInTheDocument();
   expect(screen.getByText('Only Approved')).toBeInTheDocument();
+  expect(screen.queryByLabelText(/Freigabestatus/)).not.toBeInTheDocument();
 });

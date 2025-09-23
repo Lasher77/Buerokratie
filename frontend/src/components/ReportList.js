@@ -272,6 +272,8 @@ const ReportMeta = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
   color: #777;
   font-size: 14px;
   border-top: 1px solid #eee;
@@ -300,6 +302,34 @@ const CommentIndicator = styled.span`
   margin-left: 5px;
 `;
 
+const ReportMetaInfo = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+`;
+
+const StatusBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  background-color: ${(props) => props.$background || '#e0e0e0'};
+  color: ${(props) => props.$color || '#333'};
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+`;
+
+const StatusDot = styled.span`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: ${(props) => props.$dotColor || 'currentColor'};
+`;
+
 const NoResults = styled.div`
   text-align: center;
   padding: 40px;
@@ -324,6 +354,51 @@ const ErrorMessage = styled.div`
   margin-bottom: 20px;
 `;
 
+const STATUS_CONFIG = {
+  approved: {
+    label: 'Freigegeben',
+    background: '#2E7D32',
+    color: '#fff',
+    dotColor: '#A5D6A7',
+  },
+  pending: {
+    label: 'In Prüfung',
+    background: '#FFB400',
+    color: '#3A2A00',
+    dotColor: '#FFE082',
+  },
+  rejected: {
+    label: 'Abgelehnt',
+    background: '#C62828',
+    color: '#fff',
+    dotColor: '#FFCDD2',
+  },
+  default: {
+    label: 'Unbekannt',
+    background: '#9E9E9E',
+    color: '#fff',
+    dotColor: '#E0E0E0',
+  },
+};
+
+const getStatusConfig = (status) => {
+  if (!status) {
+    return STATUS_CONFIG.default;
+  }
+
+  const normalizedStatus = status.toString().toLowerCase();
+  if (STATUS_CONFIG[normalizedStatus]) {
+    return STATUS_CONFIG[normalizedStatus];
+  }
+
+  return {
+    label: status,
+    background: STATUS_CONFIG.default.background,
+    color: STATUS_CONFIG.default.color,
+    dotColor: STATUS_CONFIG.default.dotColor,
+  };
+};
+
 const ReportList = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -332,6 +407,7 @@ const ReportList = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [filteredReports, setFilteredReports] = useState([]);
   const { user } = useAuth();
+  const isModerator = user && (user.role === 'moderator' || user.role === 'admin');
 
   useEffect(() => {
     let isMounted = true;
@@ -341,7 +417,6 @@ const ReportList = () => {
       setError(null);
 
       try {
-        const isModerator = user && (user.role === 'moderator' || user.role === 'admin');
         const token = localStorage.getItem('authToken');
         const useModeratorEndpoint = Boolean(isModerator && token);
         const endpoint = useModeratorEndpoint
@@ -442,36 +517,54 @@ const ReportList = () => {
       {filteredReports.length === 0 ? (
         <NoResults>Keine Meldungen gefunden.</NoResults>
       ) : (
-        filteredReports.map(report => (
-          <ReportCard key={report.id} category={report.category_name}>
-            <ReportTitle>
-              <ReportTitleLink to={`/meldung/${report.id}`}>
-                {report.title}
-              </ReportTitleLink>
-            </ReportTitle>
-            <ReportCategory>{report.category_name}</ReportCategory>
-            <ReportDescription>
-              {report.description.length > 300
-                ? `${report.description.substring(0, 300)}...`
-                : report.description}
-            </ReportDescription>
-            <ContactNotice>Kontaktdaten sind nur für Moderationsteams sichtbar.</ContactNotice>
-            <ReportMeta>
-              <ReportDate>Gemeldet am {formatDate(report.created_at)}</ReportDate>
-              <ReportStats>
-                {report.time_spent && <StatItem>{report.time_spent} Std./Monat</StatItem>}
-                {report.costs && <StatItem>{report.costs} €/Jahr</StatItem>}
-                {report.affected_employees && <StatItem>{report.affected_employees} Mitarbeiter</StatItem>}
-                <VoteCount>
-                  👍 {report.vote_count || 0}
-                </VoteCount>
-                {report.has_comments && (
-                  <CommentIndicator title="Kommentare vorhanden">💬</CommentIndicator>
-                )}
-              </ReportStats>
-            </ReportMeta>
-          </ReportCard>
-        ))
+        filteredReports.map(report => {
+          const statusConfig = getStatusConfig(report.status);
+
+          return (
+            <ReportCard key={report.id} category={report.category_name}>
+              <ReportTitle>
+                <ReportTitleLink to={`/meldung/${report.id}`}>
+                  {report.title}
+                </ReportTitleLink>
+              </ReportTitle>
+              <ReportCategory>{report.category_name}</ReportCategory>
+              <ReportDescription>
+                {report.description.length > 300
+                  ? `${report.description.substring(0, 300)}...`
+                  : report.description}
+              </ReportDescription>
+              <ContactNotice>Kontaktdaten sind nur für Moderationsteams sichtbar.</ContactNotice>
+              <ReportMeta>
+                <ReportMetaInfo>
+                  <ReportDate>Gemeldet am {formatDate(report.created_at)}</ReportDate>
+                  {isModerator && (
+                    <StatusBadge
+                      $background={statusConfig.background}
+                      $color={statusConfig.color}
+                      $dotColor={statusConfig.dotColor}
+                      title={`Freigabestatus: ${statusConfig.label}`}
+                      aria-label={`Freigabestatus: ${statusConfig.label}`}
+                    >
+                      <StatusDot $dotColor={statusConfig.dotColor} aria-hidden="true" />
+                      {statusConfig.label}
+                    </StatusBadge>
+                  )}
+                </ReportMetaInfo>
+                <ReportStats>
+                  {report.time_spent && <StatItem>{report.time_spent} Std./Monat</StatItem>}
+                  {report.costs && <StatItem>{report.costs} €/Jahr</StatItem>}
+                  {report.affected_employees && <StatItem>{report.affected_employees} Mitarbeiter</StatItem>}
+                  <VoteCount>
+                    👍 {report.vote_count || 0}
+                  </VoteCount>
+                  {report.has_comments && (
+                    <CommentIndicator title="Kommentare vorhanden">💬</CommentIndicator>
+                  )}
+                </ReportStats>
+              </ReportMeta>
+            </ReportCard>
+          );
+        })
       )}
     </ListContainer>
   );
