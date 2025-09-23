@@ -4,6 +4,7 @@ import { API_BASE } from '../api';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import CategorySelect from './CategorySelect';
+import { useAuth } from '../AuthContext';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -330,15 +331,37 @@ const ReportList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [filteredReports, setFilteredReports] = useState([]);
+  const { user } = useAuth();
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchReports = async () => {
+      setLoading(true);
+      setError(null);
+
       try {
-        const response = await axios.get(`${API_BASE}/api/reports`);
+        const isModerator = user && (user.role === 'moderator' || user.role === 'admin');
+        const token = localStorage.getItem('authToken');
+        const useModeratorEndpoint = Boolean(isModerator && token);
+        const endpoint = useModeratorEndpoint
+          ? `${API_BASE}/api/reports/pending`
+          : `${API_BASE}/api/reports`;
+        const config = useModeratorEndpoint
+          ? { headers: { Authorization: `Bearer ${token}` } }
+          : undefined;
+
+        const response = await axios.get(endpoint, config);
+        if (!isMounted) {
+          return;
+        }
         setReports(response.data);
         setFilteredReports(response.data);
         setLoading(false);
       } catch (err) {
+        if (!isMounted) {
+          return;
+        }
         console.error('Fehler beim Laden der Meldungen:', err.message || err.response);
         const devMessage = err.message || err.response?.data?.message;
         const genericMessage = 'Meldungen konnten nicht geladen werden.';
@@ -348,7 +371,11 @@ const ReportList = () => {
     };
 
     fetchReports();
-  }, []);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
 
   useEffect(() => {
     // Filter reports based on search term and selected category
