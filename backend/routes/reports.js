@@ -181,9 +181,9 @@ router.post('/', reportValidationRules, async (req, res) => {
     }
 
     // Bei anonymen Meldungen Kontaktdaten auf null setzen
-    const finalReporterName = is_anonymous ? null : (reporter_name || null);
-    const finalReporterCompany = is_anonymous ? null : (reporter_company || null);
-    const finalReporterEmail = is_anonymous ? null : (reporter_email || null);
+    const finalReporterName = is_anonymous ? null : (reporter_name ?? null);
+    const finalReporterCompany = is_anonymous ? null : (reporter_company ?? null);
+    const finalReporterEmail = is_anonymous ? null : (reporter_email ?? null);
 
     // Meldung in die Datenbank einfügen
     const [result] = await db.query(
@@ -195,14 +195,14 @@ router.post('/', reportValidationRules, async (req, res) => {
         title,
         description,
         category_id,
-        time_spent || null,
-        costs || null,
-        affected_employees || null,
+        time_spent ?? null,
+        costs ?? null,
+        affected_employees ?? null,
         finalReporterName,
         finalReporterCompany,
         finalReporterEmail,
-        wz_category_key || null,
-        is_anonymous || false,
+        wz_category_key ?? null,
+        is_anonymous ?? false,
         'pending'
       ]
     );

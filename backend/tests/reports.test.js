@@ -58,6 +58,36 @@ describe('POST /api/reports', () => {
     expect(db.query.mock.calls[1][1][9]).toBe('A');
     expect(db.query.mock.calls[1][1][11]).toBe('pending');
   });
+
+  it('keeps zero values for numeric fields', async () => {
+    db.query.mockResolvedValueOnce([[{ id: 1 }]]);
+    db.query.mockResolvedValueOnce([{ insertId: 43 }]);
+    const zeroReport = {
+      ...basePendingReport,
+      id: 43,
+      time_spent: 0,
+      costs: 0,
+      affected_employees: 0
+    };
+    db.query.mockResolvedValueOnce([[zeroReport]]);
+
+    const res = await request(app).post('/api/reports').send({
+      title: 'Test',
+      description: 'Desc',
+      category_id: 1,
+      time_spent: 0,
+      costs: 0,
+      affected_employees: 0,
+      wz_category_key: 'A'
+    });
+
+    expect(res.statusCode).toBe(201);
+    expect(res.body).toEqual(zeroReport);
+    const insertParams = db.query.mock.calls[1][1];
+    expect(insertParams[3]).toBe(0);
+    expect(insertParams[4]).toBe(0);
+    expect(insertParams[5]).toBe(0);
+  });
 });
 
 describe('GET /api/reports', () => {
