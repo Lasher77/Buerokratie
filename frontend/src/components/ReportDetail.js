@@ -161,6 +161,52 @@ const ErrorMessage = styled.div`
   margin-bottom: 20px;
 `;
 
+const StatusContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+`;
+
+const StatusBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-weight: bold;
+  font-size: 14px;
+  color: ${props => (props.status === 'approved' ? '#1b5e20' : '#9c1a1c')};
+  background-color: ${props => (props.status === 'approved' ? '#e8f5e9' : '#fdecea')};
+  border: 1px solid ${props => (props.status === 'approved' ? '#81c784' : '#f5c6cb')};
+`;
+
+const StatusButton = styled.button`
+  background-color: ${props => (props.status === 'approved' ? '#1b5e20' : '#9c1a1c')};
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: ${props => (props.status === 'approved' ? '#145015' : '#7d1416')};
+  }
+
+  &:disabled {
+    background-color: #b0b0b0;
+    cursor: not-allowed;
+  }
+`;
+
+const StatusError = styled.span`
+  color: #9c1a1c;
+  font-size: 14px;
+`;
+
 const ReportDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -171,6 +217,9 @@ const ReportDetail = () => {
   const [isVoting, setIsVoting] = useState(false);
   const [sessionId, setSessionId] = useState(null);
   const { user } = useAuth();
+  const isModerator = user && (user.role === 'moderator' || user.role === 'admin');
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [statusError, setStatusError] = useState(null);
 
   // Die Session-ID wird vom Backend vergeben und hier lediglich persistiert.
   useEffect(() => {
@@ -187,7 +236,6 @@ const ReportDetail = () => {
       setError(null);
 
       try {
-        const isModerator = user && (user.role === 'moderator' || user.role === 'admin');
         const token = localStorage.getItem('authToken');
         const useConfidentialEndpoint = Boolean(isModerator && token);
         const endpoint = useConfidentialEndpoint
@@ -214,7 +262,7 @@ const ReportDetail = () => {
     if (id) {
       fetchReport();
     }
-  }, [id, user]);
+  }, [id, isModerator]);
 
   // Bewertungsstatus laden
   useEffect(() => {
@@ -294,6 +342,44 @@ const ReportDetail = () => {
     return new Date(dateString).toLocaleDateString('de-DE', options);
   };
 
+  const translateStatus = (status) => {
+    switch (status) {
+      case 'approved':
+        return 'Freigegeben';
+      case 'pending':
+      default:
+        return 'Zurückgestellt';
+    }
+  };
+
+  const handleStatusToggle = async () => {
+    if (!report || isUpdatingStatus) return;
+
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      setStatusError('Anmeldung erforderlich, um den Status zu ändern.');
+      return;
+    }
+
+    setIsUpdatingStatus(true);
+    setStatusError(null);
+
+    try {
+      const response = await axios.patch(
+        `${API_BASE}/api/reports/${id}/status`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setReport(response.data);
+    } catch (err) {
+      console.error('Fehler beim Aktualisieren des Meldungsstatus:', err);
+      const message = err.response?.data?.message || 'Status konnte nicht aktualisiert werden.';
+      setStatusError(message);
+    } finally {
+      setIsUpdatingStatus(false);
+    }
+  };
+
   if (loading) return <LoadingMessage>Meldung wird geladen...</LoadingMessage>;
   if (error) return <ErrorMessage>{error}</ErrorMessage>;
   if (!report) return <ErrorMessage>Meldung nicht gefunden.</ErrorMessage>;
@@ -310,7 +396,7 @@ const ReportDetail = () => {
         <CategoryBadge>{report.category_name}</CategoryBadge>
         
         <ReportDescription>{report.description}</ReportDescription>
-        
+
         <MetaSection>
           <MetaItem>
             <MetaLabel>Gemeldet am</MetaLabel>
@@ -347,7 +433,27 @@ const ReportDetail = () => {
             </MetaValue>
           </MetaItem>
         </MetaSection>
-        
+
+        {isModerator && (
+          <StatusContainer>
+            <StatusBadge status={report.status}>
+              Status: {translateStatus(report.status)}
+            </StatusBadge>
+            <StatusButton
+              status={report.status}
+              onClick={handleStatusToggle}
+              disabled={isUpdatingStatus}
+            >
+              {isUpdatingStatus
+                ? 'Status wird aktualisiert...'
+                : report.status === 'approved'
+                  ? 'Zurückstellen'
+                  : 'Freigeben'}
+            </StatusButton>
+            {statusError && <StatusError>{statusError}</StatusError>}
+          </StatusContainer>
+        )}
+
         <VotingSection>
           <VoteButton 
             hasVoted={voteStatus.hasVoted}
