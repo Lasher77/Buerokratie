@@ -139,6 +139,75 @@ describe('GET /api/reports/pending', () => {
   });
 });
 
+describe('PATCH /api/reports/:id/status', () => {
+  it('toggles status from pending to approved for moderators', async () => {
+    const token = jwt.sign({ id: 10, role: 'moderator' }, process.env.JWT_SECRET);
+    const updatedReport = { ...baseApprovedReport, id: 5 };
+
+    db.query
+      .mockResolvedValueOnce([[{ status: 'pending' }]])
+      .mockResolvedValueOnce([{ affectedRows: 1 }])
+      .mockResolvedValueOnce([[updatedReport]]);
+
+    const res = await request(app)
+      .patch('/api/reports/5/status')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual(updatedReport);
+    expect(db.query.mock.calls[1][0]).toContain('UPDATE reports SET status = ?');
+    expect(db.query.mock.calls[1][1]).toEqual(['approved', '5']);
+  });
+
+  it('allows admins to toggle status from approved to pending', async () => {
+    const token = jwt.sign({ id: 11, role: 'admin' }, process.env.JWT_SECRET);
+    const updatedReport = { ...basePendingReport, id: 6 };
+
+    db.query
+      .mockResolvedValueOnce([[{ status: 'approved' }]])
+      .mockResolvedValueOnce([{ affectedRows: 1 }])
+      .mockResolvedValueOnce([[updatedReport]]);
+
+    const res = await request(app)
+      .patch('/api/reports/6/status')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual(updatedReport);
+    expect(db.query.mock.calls[1][1]).toEqual(['pending', '6']);
+  });
+
+  it('rejects anonymous status changes', async () => {
+    const res = await request(app).patch('/api/reports/1/status');
+
+    expect(res.statusCode).toBe(401);
+    expect(db.query).not.toHaveBeenCalled();
+  });
+
+  it('rejects normal users', async () => {
+    const token = jwt.sign({ id: 12, role: 'user' }, process.env.JWT_SECRET);
+
+    const res = await request(app)
+      .patch('/api/reports/1/status')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.statusCode).toBe(403);
+    expect(db.query).not.toHaveBeenCalled();
+  });
+
+  it('returns 404 for non-existent reports', async () => {
+    const token = jwt.sign({ id: 13, role: 'moderator' }, process.env.JWT_SECRET);
+
+    db.query.mockResolvedValueOnce([[]]);
+
+    const res = await request(app)
+      .patch('/api/reports/999/status')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.statusCode).toBe(404);
+  });
+});
+
 describe('GET /api/reports/:id', () => {
   it('returns single sanitized report', async () => {
     db.query.mockResolvedValueOnce([[baseApprovedReport]]);
