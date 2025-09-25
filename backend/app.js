@@ -13,13 +13,15 @@ app.use(express.urlencoded({ extended: true }));
 // Trust proxy für korrekte IP-Adressen
 app.set('trust proxy', true);
 
-// HTTPS erzwingen, wenn verfügbar
+// HTTPS erzwingen, wenn verfügbar (konfigurierbar über Umgebung)
 app.use((req, res, next) => {
   const httpsEnabled = req.secure || req.get('x-forwarded-proto') === 'https';
   const environment = (process.env.NODE_ENV || '').toLowerCase();
-  const isLocalEnv = ['development', 'test'].includes(environment);
+  const enforceHttpsEnv = (process.env.ENFORCE_HTTPS || '').toLowerCase();
+  const httpsRequired =
+    ['true', '1', 'yes'].includes(enforceHttpsEnv) || environment === 'production';
 
-  if (httpsEnabled || isLocalEnv) {
+  if (!httpsRequired || httpsEnabled) {
     return next();
   }
 
