@@ -27,20 +27,20 @@ app.use((req, res, next) => {
 });
 
 // CORS-Konfiguration
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
+const defaultAllowedOrigin = 'http://localhost:3000';
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || defaultAllowedOrigin)
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
 
-if (allowedOrigins.length > 0) {
-  app.use(
-    cors({
-      origin: allowedOrigins,
-    })
-  );
-} else {
-  app.use(cors());
-}
+const corsOriginConfig =
+  allowedOrigins.length === 1 ? allowedOrigins[0] : allowedOrigins;
+
+app.use(
+  cors({
+    origin: corsOriginConfig,
+  })
+);
 
 // Routen
 const categoriesRoutes = require('./routes/categories');
