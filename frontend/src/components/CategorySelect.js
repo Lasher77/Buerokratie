@@ -13,7 +13,7 @@ const SelectContainer = styled.div`
 
 const Label = styled.label`
   font-weight: 700;
-  color: #2d2d2d;
+  color: #E30613;
   letter-spacing: 0.01em;
 `;
 
@@ -21,18 +21,18 @@ const Select = styled.select`
   width: 100%;
   padding: 12px 20px;
   padding-right: 3.5rem;
-  border: none;
+  border: 2px solid #E30613;
   border-radius: 999px;
   font-size: 16px;
   font-weight: 600;
-  background: linear-gradient(135deg, #f7f7fb, #ffffff);
+  background: #fff;
   color: #2d2d2d;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
-  transition: box-shadow 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+  box-shadow: 0 8px 18px rgba(227, 6, 19, 0.08);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
   appearance: none;
   cursor: pointer;
-  background-image: linear-gradient(45deg, transparent 50%, #58585A 50%),
-    linear-gradient(135deg, #58585A 50%, transparent 50%),
+  background-image: linear-gradient(45deg, transparent 50%, #E30613 50%),
+    linear-gradient(135deg, #E30613 50%, transparent 50%),
     linear-gradient(to right, transparent, transparent);
   background-position: calc(100% - 28px) calc(50% - 2px),
     calc(100% - 22px) calc(50% - 2px),
@@ -41,13 +41,14 @@ const Select = styled.select`
   background-repeat: no-repeat;
 
   &:hover {
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 10px 22px rgba(227, 6, 19, 0.12);
   }
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 159, 227, 0.25);
-    background-color: #fff;
+    border-color: #b20510;
+    box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.18);
+    background-color: #fff5f6;
   }
 `;
 
