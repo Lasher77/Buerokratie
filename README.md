@@ -48,7 +48,7 @@ mysql -u BENUTZERNAME -p buerokratieabbau < ../database_comments_extension.sql
 # Für Installationen vor Einführung der WZ-Kategorien führen Sie außerdem aus:
 mysql -u BENUTZERNAME -p buerokratieabbau < ../database_wz_category_extension.sql
 
-# Server starten
+# Server starten (für lokale Entwicklung weiterhin per HTTP)
 npm run dev
 ```
 
@@ -69,7 +69,12 @@ cp .env.example .env
 npm start
 ```
 
-Die Anwendung ist nun unter http://localhost:3000 verfügbar.
+Die Anwendung ist nun unter http://localhost:3000 verfügbar. Für das lokale
+Frontend- und Backend-Development ändert sich durch die HTTPS-Anforderung
+also nichts: Sie starten weiterhin mit `npm run dev` im Backend und
+`npm start` im Frontend. Erst in der produktiven Bereitstellung muss der
+Reverse-Proxy eingehende Anfragen auf HTTPS terminieren und den Header
+`X-Forwarded-Proto` an das Backend weiterleiten.
 
 ## Funktionen
 
@@ -190,7 +195,15 @@ JWT_EXPIRES_IN=24h
 `JWT_EXPIRES_IN` legt fest, wie lange neu ausgestellte JSON Web Tokens gültig sind (Standard: 24 Stunden).
 
 `ALLOWED_ORIGINS` legt fest, welche Urspruenge beim Aufruf der API zugelassen sind.
-Mehrere Eintraege koennen komma-getrennt angegeben werden.
+Standardmäßig ist `http://localhost:3000` hinterlegt, sodass lokale Frontend-
+Anfragen funktionieren. Mehrere Eintraege koennen komma-getrennt angegeben
+werden.
+
+**Hinweis zur Bereitstellung:** Im Produktionsbetrieb akzeptiert das Backend nur
+HTTPS-Anfragen. Stellen Sie sicher, dass Ihr Reverse-Proxy oder Load Balancer
+die Verbindung per HTTPS terminiert und den Header `X-Forwarded-Proto`
+weiterleitet. Für lokale Entwicklung und automatisierte Tests (NODE_ENV
+`development` bzw. `test`) bleibt HTTP weiterhin möglich.
 
 ### MySQL-Setup
 
