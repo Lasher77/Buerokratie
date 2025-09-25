@@ -38,27 +38,47 @@ const Label = styled.label`
 
 const Input = styled.input`
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 12px 20px;
+  border: 2px solid #E30613;
+  border-radius: 999px;
   font-size: 16px;
-  
+  font-weight: 600;
+  color: #2d2d2d;
+  background-color: #fff;
+  box-shadow: 0 8px 18px rgba(227, 6, 19, 0.08);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 10px 22px rgba(227, 6, 19, 0.12);
+  }
+
   &:focus {
-    border-color: #E30613; /* BVMW Rot */
+    border-color: #b20510;
+    box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.18);
     outline: none;
   }
 `;
 
 const TextArea = styled.textarea`
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 16px 20px;
+  border: 2px solid #E30613;
+  border-radius: 24px;
   font-size: 16px;
+  font-weight: 600;
+  color: #2d2d2d;
+  background-color: #fff;
   min-height: 150px;
-  
+  box-shadow: 0 8px 18px rgba(227, 6, 19, 0.08);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 10px 22px rgba(227, 6, 19, 0.12);
+  }
+
   &:focus {
-    border-color: #E30613; /* BVMW Rot */
+    border-color: #b20510;
+    box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.18);
     outline: none;
   }
 `;
