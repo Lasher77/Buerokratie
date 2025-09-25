@@ -76,6 +76,44 @@ also nichts: Sie starten weiterhin mit `npm run dev` im Backend und
 Reverse-Proxy eingehende Anfragen auf HTTPS terminieren und den Header
 `X-Forwarded-Proto` an das Backend weiterleiten.
 
+## Produktivbetrieb
+
+### Backend produktiv starten
+
+1. Abhängigkeiten ohne Dev-Pakete installieren:
+   ```bash
+   cd backend
+   npm ci --omit=dev
+   ```
+2. `.env` mit produktiven Werten befüllen (starkes `JWT_SECRET`,
+   produktive Datenbank, erlaubte Domains in `ALLOWED_ORIGINS`).
+3. Den Server im Produktionsmodus starten, z. B. via systemd oder PM2:
+   ```bash
+   NODE_ENV=production npm run start
+   ```
+4. Vor dem Start sicherstellen, dass ein Reverse-Proxy (z. B. Nginx)
+   eingehende HTTPS-Verbindungen terminiert und den Header
+   `X-Forwarded-Proto` weiterreicht, damit das Backend HTTPS erzwingt.
+
+### Frontend produktiv bereitstellen
+
+1. Build erzeugen:
+   ```bash
+   cd frontend
+   npm ci
+   REACT_APP_API_BASE_URL="https://<ihr-backend-domain>/api" npm run build
+   ```
+2. Den Inhalt des Verzeichnisses `frontend/build` von einem Webserver
+   (z. B. Nginx oder Apache) als statische Dateien ausliefern.
+3. Im Reverse-Proxy die API-Routen (z. B. `/api`) an das Backend weiter-
+   leiten und HTTPS erzwingen, sodass Browser-Anfragen, Cookies und CORS
+   korrekt funktionieren.
+
+> **Hinweis:** Bei Updates genügt es, das neue Backend-Image bzw. den neuen
+> Build zu deployen und anschließend kurzzeitig neu zu starten. Die
+> Datenbankmigrationen werden über die bereitgestellten SQL-Skripte
+> ausgeführt (Votes → Comments → WZ-Kategorien).
+
 ## Funktionen
 
 - **Meldung bürokratischer Hemmnisse**: Formular zur Erfassung von Bürokratiefällen
