@@ -192,6 +192,12 @@ JWT_EXPIRES_IN=24h
 `ALLOWED_ORIGINS` legt fest, welche Urspruenge beim Aufruf der API zugelassen sind.
 Mehrere Eintraege koennen komma-getrennt angegeben werden.
 
+**Hinweis zur Bereitstellung:** Im Produktionsbetrieb akzeptiert das Backend nur
+HTTPS-Anfragen. Stellen Sie sicher, dass Ihr Reverse-Proxy oder Load Balancer
+die Verbindung per HTTPS terminiert und den Header `X-Forwarded-Proto`
+weiterleitet. Für lokale Entwicklung und automatisierte Tests (NODE_ENV
+`development` bzw. `test`) bleibt HTTP weiterhin möglich.
+
 ### MySQL-Setup
 
 1. Erstellen Sie eine neue Datenbank:
