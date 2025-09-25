@@ -13,6 +13,19 @@ app.use(express.urlencoded({ extended: true }));
 // Trust proxy für korrekte IP-Adressen
 app.set('trust proxy', true);
 
+// HTTPS erzwingen, wenn verfügbar
+app.use((req, res, next) => {
+  const httpsEnabled = req.secure || req.get('x-forwarded-proto') === 'https';
+  const environment = (process.env.NODE_ENV || '').toLowerCase();
+  const isLocalEnv = ['development', 'test'].includes(environment);
+
+  if (httpsEnabled || isLocalEnv) {
+    return next();
+  }
+
+  res.status(403).json({ message: 'HTTPS ist erforderlich.' });
+});
+
 // CORS-Konfiguration
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
   .split(',')
