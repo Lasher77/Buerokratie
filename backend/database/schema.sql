@@ -1,3 +1,7 @@
+CREATE DATABASE IF NOT EXISTS buerokratieabbau
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
 USE buerokratieabbau;
 
 -- Kategorien-Tabelle
@@ -76,4 +80,22 @@ INSERT INTO categories (name, description) VALUES
 ('Datenschutz', 'DSGVO und andere Datenschutzanforderungen'),
 ('Arbeitsschutz', 'Arbeitsschutzvorschriften und Gefährdungsbeurteilungen'),
 ('Branchenspezifisches', 'Branchenspezifische Vorschriften und Auflagen');
+
+-- Standard-Administrator anlegen (wird nur angelegt, falls noch nicht vorhanden)
+INSERT INTO users (email, password_hash, name, company, role)
+SELECT admin.email,
+       admin.password_hash,
+       admin.name,
+       admin.company,
+       admin.role
+FROM (
+  SELECT 'sven.winkler@bvmw.de' AS email,
+         '$2b$10$NBDJinl6eub0Cw2DfHOX9eXi0hAZ08eWS8vJmU8dXWLdgSkPfXJNC' AS password_hash,
+         'Sven Winkler' AS name,
+         NULL AS company,
+         'admin' AS role
+) AS admin
+WHERE NOT EXISTS (
+  SELECT 1 FROM users WHERE email = admin.email
+);
 
