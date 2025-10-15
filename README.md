@@ -33,10 +33,8 @@ cp .env.example .env
 # Passen Sie die Werte in der .env-Datei an Ihre Umgebung an
 
 # Datenbank einrichten
-# Basisschema importieren
-mysql -u BENUTZERNAME -p < database/schema.sql
-
-# Das Basisschema legt auch die Tabelle `comments` an
+# Einmalige Initialisierung (legt Datenbank, Tabellen, Kategorien und einen Administrator an)
+mysql -u BENUTZERNAME -p < backend/database/schema.sql
 
 # Erweiterung für das Bewertungssystem (legt die Tabelle `votes` an)
 mysql -u BENUTZERNAME -p buerokratieabbau < ../database_votes_extension.sql
@@ -50,7 +48,7 @@ mysql -u BENUTZERNAME -p buerokratieabbau < ../database_wz_category_extension.sq
 
 # Server starten (für lokale Entwicklung weiterhin per HTTP)
 npm run dev
-```
+ ```
 
 2. **Frontend einrichten**
 
@@ -67,7 +65,7 @@ cp .env.example .env
 
 # Entwicklungsserver starten
 npm start
-```
+ ```
 
 Die Anwendung ist nun unter http://localhost:3000 verfügbar. Für das lokale
 Frontend- und Backend-Development ändert sich durch die HTTPS-Anforderung
@@ -112,7 +110,9 @@ Reverse-Proxy eingehende Anfragen auf HTTPS terminieren und den Header
 > **Hinweis:** Bei Updates genügt es, das neue Backend-Image bzw. den neuen
 > Build zu deployen und anschließend kurzzeitig neu zu starten. Die
 > Datenbankmigrationen werden über die bereitgestellten SQL-Skripte
-> ausgeführt (Votes → Comments → WZ-Kategorien).
+> ausgeführt (Votes → Comments → WZ-Kategorien). Der Standard-Administrator
+> (E-Mail `sven.winkler@bvmw.de`, Passwort `Pa$$wort123`) wird bei der
+> Initialisierung angelegt; ändern Sie das Passwort nach dem ersten Login.
 
 ## Funktionen
 
