@@ -361,3 +361,39 @@ Bei Fragen oder Problemen wenden Sie sich an das Entwicklungsteam.
 ## Lizenz
 
 Dieses Projekt ist proprietaer. Eine Weitergabe oder Aenderung ist ohne ausdrueckliche schriftliche Genehmigung des BVMW nicht gestattet. Siehe die Datei LICENSE fuer Details.
+
+## Produktion (einfachste Variante)
+
+**Ziel:** Frontend-Build wird vom Express-Backend (Port `5000`) ausgeliefert. Ein Cloudflare-Hostname zeigt auf diesen Port. Keine separate Subdomain für das Frontend, keine CORS-Probleme.
+
+### Schritte
+
+1. **Frontend bauen**
+   ```bash
+   cd frontend
+   npm ci
+   npm run build
+   cd ..
+   ```
+2. **Environment konfigurieren**
+   ```bash
+   cd backend
+   cp .env.example .env
+   # Passe ENFORCE_HTTPS, DB- und JWT-Werte an
+   cd ..
+   ```
+3. **Backend (liefert auch das Frontend aus) starten**
+   ```bash
+   cd backend
+   npm install --production
+   npm run start
+   ```
+4. **Cloudflare-Hostname einrichten**
+   - Lege in Cloudflare einen DNS-Eintrag (z. B. `app.example.com`) mit Proxy (orange cloud) an, der auf den Server zeigt.
+   - Stelle sicher, dass der Server Port `5000` offen hat oder ein lokaler Reverse-Proxy (z. B. Nginx) auf `localhost:5000` weiterleitet.
+   - Aktiviere in Cloudflare „Always Use HTTPS“ oder lasse den Express-Redirect (`ENFORCE_HTTPS=true`) aktiv.
+
+5. **Smoke-Test**
+   - `https://app.example.com/health` sollte `{"ok": true}` zurückgeben.
+   - Die Startseite wird aus dem React-Build ausgeliefert; API-Calls laufen über denselben Origin (`/api/...`).
+
