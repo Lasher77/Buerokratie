@@ -354,6 +354,60 @@ curl https://ihre-domain.de/health
 
 **Hinweis:** In Produktion mit Same-Origin-Setup kann `REACT_APP_API_BASE_URL` leer bleiben.
 
+### Ports anpassen (bei Konflikten)
+
+Falls die Standard-Ports (5000 für Backend, 3000 für Frontend) bereits belegt sind:
+
+#### Backend-Port ändern
+
+In `backend/.env`:
+```env
+PORT=5001
+```
+
+**Wichtig:** Passen Sie dann auch `ALLOWED_ORIGINS` an:
+```env
+ALLOWED_ORIGINS=http://localhost:3001
+```
+
+#### Frontend-Port ändern
+
+**Option 1:** In `frontend/.env`:
+```env
+PORT=3001
+```
+
+**Option 2:** Beim Starten:
+```bash
+# Linux/Mac
+PORT=3001 npm start
+
+# Windows (CMD)
+set PORT=3001 && npm start
+
+# Windows (PowerShell)
+$env:PORT=3001; npm start
+```
+
+**Wichtig:** Passen Sie dann auch `REACT_APP_API_BASE_URL` an:
+```env
+REACT_APP_API_BASE_URL=http://localhost:5001
+```
+
+#### Beispiel: Beide Ports geändert
+
+**backend/.env:**
+```env
+PORT=5001
+ALLOWED_ORIGINS=http://localhost:3001
+```
+
+**frontend/.env:**
+```env
+PORT=3001
+REACT_APP_API_BASE_URL=http://localhost:5001
+```
+
 ---
 
 ## Funktionen
