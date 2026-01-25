@@ -1,19 +1,33 @@
+-- =============================================================================
+-- BVMW Bürokratieabbau-Plattform - Datenbank-Schema
+-- =============================================================================
+-- Dieses Schema erstellt alle benötigten Tabellen und fügt die initialen
+-- Kategorien ein.
+--
+-- HINWEIS: Der erste Administrator wird über den Setup-Wizard im Browser
+-- erstellt, nicht über dieses Schema.
+-- =============================================================================
+
 CREATE DATABASE IF NOT EXISTS buerokratieabbau
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
 USE buerokratieabbau;
 
+-- -----------------------------------------------------------------------------
 -- Kategorien-Tabelle
-CREATE TABLE categories (
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS categories (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   description TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- -----------------------------------------------------------------------------
 -- Benutzer-Tabelle
-CREATE TABLE users (
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   email VARCHAR(255) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
@@ -24,8 +38,10 @@ CREATE TABLE users (
   last_login TIMESTAMP NULL
 );
 
+-- -----------------------------------------------------------------------------
 -- Meldungen-Tabelle
-CREATE TABLE reports (
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS reports (
   id INT AUTO_INCREMENT PRIMARY KEY,
   title VARCHAR(255) NOT NULL,
   description TEXT NOT NULL,
@@ -44,8 +60,10 @@ CREATE TABLE reports (
   FOREIGN KEY (category_id) REFERENCES categories(id)
 );
 
--- Feedback-Tabelle
-CREATE TABLE feedback (
+-- -----------------------------------------------------------------------------
+-- Feedback-Tabelle (für ML-Training)
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS feedback (
   id INT AUTO_INCREMENT PRIMARY KEY,
   report_id INT NOT NULL,
   original_category_id INT,
@@ -58,8 +76,10 @@ CREATE TABLE feedback (
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+-- -----------------------------------------------------------------------------
 -- Kommentare zu Meldungen
-CREATE TABLE comments (
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS comments (
   id INT AUTO_INCREMENT PRIMARY KEY,
   report_id INT NOT NULL,
   user_id INT NOT NULL,
@@ -70,32 +90,35 @@ CREATE TABLE comments (
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
--- Initiale Kategorien einfügen
-INSERT INTO categories (name, description) VALUES
-('Steuer', 'Steuerliche Vorschriften und Meldepflichten'),
-('Dokumentationspflicht', 'Pflichten zur Dokumentation und Aufbewahrung'),
-('Rechnungswesen', 'Buchführung, Bilanzierung und Jahresabschlüsse'),
-('Statistiken', 'Statistische Meldepflichten und Erhebungen'),
-('Sozialversicherungen', 'Meldeverfahren und Beitragsnachweise'),
-('Datenschutz', 'DSGVO und andere Datenschutzanforderungen'),
-('Arbeitsschutz', 'Arbeitsschutzvorschriften und Gefährdungsbeurteilungen'),
-('Branchenspezifisches', 'Branchenspezifische Vorschriften und Auflagen');
-
--- Standard-Administrator anlegen (wird nur angelegt, falls noch nicht vorhanden)
-INSERT INTO users (email, password_hash, name, company, role)
-SELECT admin.email,
-       admin.password_hash,
-       admin.name,
-       admin.company,
-       admin.role
-FROM (
-  SELECT 'sven.winkler@bvmw.de' AS email,
-         '$2b$10$NBDJinl6eub0Cw2DfHOX9eXi0hAZ08eWS8vJmU8dXWLdgSkPfXJNC' AS password_hash,
-         'Sven Winkler' AS name,
-         NULL AS company,
-         'admin' AS role
-) AS admin
-WHERE NOT EXISTS (
-  SELECT 1 FROM users WHERE email = admin.email
+-- -----------------------------------------------------------------------------
+-- Abstimmungen (Votes)
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS votes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  report_id INT NOT NULL,
+  session_id VARCHAR(255) NOT NULL,
+  ip_address VARCHAR(45),
+  user_agent VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE CASCADE,
+  UNIQUE KEY unique_vote (report_id, session_id)
 );
 
+-- -----------------------------------------------------------------------------
+-- Initiale Kategorien einfügen (nur wenn noch nicht vorhanden)
+-- -----------------------------------------------------------------------------
+INSERT IGNORE INTO categories (name, description) VALUES
+  ('Steuer', 'Steuerliche Vorschriften und Meldepflichten'),
+  ('Dokumentationspflicht', 'Pflichten zur Dokumentation und Aufbewahrung'),
+  ('Rechnungswesen', 'Buchführung, Bilanzierung und Jahresabschlüsse'),
+  ('Statistiken', 'Statistische Meldepflichten und Erhebungen'),
+  ('Sozialversicherungen', 'Meldeverfahren und Beitragsnachweise'),
+  ('Datenschutz', 'DSGVO und andere Datenschutzanforderungen'),
+  ('Arbeitsschutz', 'Arbeitsschutzvorschriften und Gefährdungsbeurteilungen'),
+  ('Branchenspezifisches', 'Branchenspezifische Vorschriften und Auflagen');
+
+-- =============================================================================
+-- HINWEIS: Nach der Datenbankeinrichtung starten Sie die Anwendung.
+-- Der Setup-Wizard im Browser führt Sie durch die Erstellung des ersten
+-- Administrator-Accounts.
+-- =============================================================================
