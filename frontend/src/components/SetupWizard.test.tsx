@@ -42,12 +42,11 @@ describe('SetupWizard', () => {
   });
 
   it('shows validation error for invalid email', async () => {
-    const user = userEvent.setup();
     render(<SetupWizard onSetupComplete={mockOnSetupComplete} />);
 
     const emailInput = screen.getByLabelText(/E-Mail-Adresse/i);
-    await user.type(emailInput, 'invalid-email');
-    await user.tab(); // Trigger blur
+    await userEvent.type(emailInput, 'invalid-email');
+    fireEvent.blur(emailInput);
 
     await waitFor(() => {
       expect(screen.getByText(/Ungültige E-Mail-Adresse/i)).toBeInTheDocument();
@@ -55,12 +54,11 @@ describe('SetupWizard', () => {
   });
 
   it('shows password validation errors', async () => {
-    const user = userEvent.setup();
     render(<SetupWizard onSetupComplete={mockOnSetupComplete} />);
 
     const passwordInput = screen.getByLabelText(/^Passwort \*/i);
-    await user.type(passwordInput, 'short');
-    await user.tab();
+    await userEvent.type(passwordInput, 'short');
+    fireEvent.blur(passwordInput);
 
     await waitFor(() => {
       expect(screen.getByText(/Mindestens 8 Zeichen/i)).toBeInTheDocument();
@@ -68,15 +66,14 @@ describe('SetupWizard', () => {
   });
 
   it('shows error when passwords do not match', async () => {
-    const user = userEvent.setup();
     render(<SetupWizard onSetupComplete={mockOnSetupComplete} />);
 
     const passwordInput = screen.getByLabelText(/^Passwort \*/i);
     const confirmInput = screen.getByLabelText(/Passwort bestätigen/i);
 
-    await user.type(passwordInput, 'SecurePass1');
-    await user.type(confirmInput, 'DifferentPass1');
-    await user.tab();
+    await userEvent.type(passwordInput, 'SecurePass1');
+    await userEvent.type(confirmInput, 'DifferentPass1');
+    fireEvent.blur(confirmInput);
 
     await waitFor(() => {
       expect(screen.getByText(/Passwörter stimmen nicht überein/i)).toBeInTheDocument();
@@ -89,16 +86,15 @@ describe('SetupWizard', () => {
       data: { token: mockToken, message: 'Administrator erfolgreich erstellt' }
     });
 
-    const user = userEvent.setup();
     render(<SetupWizard onSetupComplete={mockOnSetupComplete} />);
 
-    await user.type(screen.getByLabelText(/Name/i), 'Test Admin');
-    await user.type(screen.getByLabelText(/E-Mail-Adresse/i), 'admin@test.de');
-    await user.type(screen.getByLabelText(/^Passwort \*/i), 'SecurePass1');
-    await user.type(screen.getByLabelText(/Passwort bestätigen/i), 'SecurePass1');
+    await userEvent.type(screen.getByLabelText(/Name/i), 'Test Admin');
+    await userEvent.type(screen.getByLabelText(/E-Mail-Adresse/i), 'admin@test.de');
+    await userEvent.type(screen.getByLabelText(/^Passwort \*/i), 'SecurePass1');
+    await userEvent.type(screen.getByLabelText(/Passwort bestätigen/i), 'SecurePass1');
 
     const submitButton = screen.getByRole('button', { name: /Administrator erstellen/i });
-    await user.click(submitButton);
+    await userEvent.click(submitButton);
 
     await waitFor(() => {
       expect(api.post).toHaveBeenCalledWith('/api/setup/admin', {
@@ -115,15 +111,14 @@ describe('SetupWizard', () => {
       message: 'Setup bereits abgeschlossen'
     });
 
-    const user = userEvent.setup();
     render(<SetupWizard onSetupComplete={mockOnSetupComplete} />);
 
-    await user.type(screen.getByLabelText(/E-Mail-Adresse/i), 'admin@test.de');
-    await user.type(screen.getByLabelText(/^Passwort \*/i), 'SecurePass1');
-    await user.type(screen.getByLabelText(/Passwort bestätigen/i), 'SecurePass1');
+    await userEvent.type(screen.getByLabelText(/E-Mail-Adresse/i), 'admin@test.de');
+    await userEvent.type(screen.getByLabelText(/^Passwort \*/i), 'SecurePass1');
+    await userEvent.type(screen.getByLabelText(/Passwort bestätigen/i), 'SecurePass1');
 
     const submitButton = screen.getByRole('button', { name: /Administrator erstellen/i });
-    await user.click(submitButton);
+    await userEvent.click(submitButton);
 
     await waitFor(() => {
       expect(screen.getByText(/Setup bereits abgeschlossen/i)).toBeInTheDocument();
