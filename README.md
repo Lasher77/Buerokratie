@@ -2,398 +2,585 @@
 
 Eine Plattform für den Bundesverband Mittelständische Wirtschaft (BVMW), auf der mittelständische Unternehmen Fälle von fehlgeleiteter Bürokratie eintragen und bewerten können.
 
-## Projektstruktur
+## Inhaltsverzeichnis
 
-Das Projekt besteht aus zwei Hauptteilen:
+- [Schnellstart](#schnellstart)
+- [Installation Test-Umgebung](#installation-test-umgebung)
+- [Installation Produktion](#installation-produktion)
+- [Konfiguration](#konfiguration)
+- [Funktionen](#funktionen)
+- [API-Dokumentation](#api-dokumentation)
+- [Entwicklung](#entwicklung)
+- [Tests](#tests)
 
-1. **Backend**: Node.js mit Express und MySQL
-2. **Frontend**: React.js mit styled-components
+---
 
 ## Schnellstart
 
 ### Voraussetzungen
 
-- Node.js (v18.x empfohlen)
-- MySQL (v8.x empfohlen)
-- npm oder yarn
+- **Node.js** v18.x oder höher
+- **MySQL** v8.x
+- **npm** (wird mit Node.js installiert)
 
-### Installation und Start
-
-1. **Backend einrichten**
+### In 5 Minuten starten
 
 ```bash
-# In das Backend-Verzeichnis wechseln
+# 1. Repository klonen
+git clone <repository-url>
+cd Buerokratie
+
+# 2. Datenbank einrichten
+mysql -u root -p < backend/database/schema.sql
+
+# 3. Backend starten
 cd backend
-
-# Abhängigkeiten installieren
-npm install
-
-# Umgebungsvariablen konfigurieren
 cp .env.example .env
-# Passen Sie die Werte in der .env-Datei an Ihre Umgebung an
-
-# Datenbank einrichten
-# Einmalige Initialisierung (legt Datenbank, Tabellen, Kategorien und einen Administrator an)
-mysql -u BENUTZERNAME -p < backend/database/schema.sql
-
-# Erweiterung für das Bewertungssystem (legt die Tabelle `votes` an)
-mysql -u BENUTZERNAME -p buerokratieabbau < ../database_votes_extension.sql
-
-# Haben Sie das Schema vor der Einführung der Kommentarfunktion installiert,
-# führen Sie zusaetzlich folgendes Skript aus:
-mysql -u BENUTZERNAME -p buerokratieabbau < ../database_comments_extension.sql
-
-# Für Installationen vor Einführung der WZ-Kategorien führen Sie außerdem aus:
-mysql -u BENUTZERNAME -p buerokratieabbau < ../database_wz_category_extension.sql
-
-# Server starten (für lokale Entwicklung weiterhin per HTTP)
+# .env bearbeiten: DB_PASSWORD und JWT_SECRET setzen
+npm install
 npm run dev
- ```
 
-2. **Frontend einrichten**
+# 4. Frontend starten (neues Terminal)
+cd frontend
+cp .env.example .env
+npm install
+npm start
+
+# 5. Browser öffnen: http://localhost:3000
+# Der Setup-Wizard führt durch die Erstellung des ersten Administrators
+```
+
+---
+
+## Installation Test-Umgebung
+
+### 1. Datenbank einrichten
 
 ```bash
-# In das Frontend-Verzeichnis wechseln
-cd frontend
+# MySQL-Konsole öffnen
+mysql -u root -p
 
-# Abhängigkeiten installieren
-npm install
+# Datenbank und Benutzer erstellen
+CREATE DATABASE buerokratieabbau CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'bvmw_user'@'localhost' IDENTIFIED BY 'IhrTestPasswort';
+GRANT ALL PRIVILEGES ON buerokratieabbau.* TO 'bvmw_user'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
 
-# Umgebungsvariablen konfigurieren
+# Schema importieren
+mysql -u bvmw_user -p buerokratieabbau < backend/database/schema.sql
+```
+
+### 2. Backend konfigurieren
+
+```bash
+cd backend
 cp .env.example .env
-# Setzen Sie die Adresse des Backends in `REACT_APP_API_BASE_URL`
+```
 
-# Entwicklungsserver starten
+Bearbeiten Sie `backend/.env`:
+
+```env
+# Server
+PORT=5000
+NODE_ENV=development
+
+# Datenbank
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_USER=bvmw_user
+DB_PASSWORD=IhrTestPasswort
+DB_NAME=buerokratieabbau
+
+# JWT (für Tests beliebiger String)
+JWT_SECRET=mein-test-secret-min-32-zeichen-lang
+JWT_EXPIRES_IN=24h
+
+# CORS (Frontend-URL)
+ALLOWED_ORIGINS=http://localhost:3000
+
+# HTTPS in Test deaktivieren
+ENFORCE_HTTPS=false
+```
+
+### 3. Backend starten
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+Das Backend läuft nun auf `http://localhost:5000`.
+
+### 4. Frontend konfigurieren
+
+```bash
+cd frontend
+cp .env.example .env
+```
+
+Bearbeiten Sie `frontend/.env`:
+
+```env
+REACT_APP_API_BASE_URL=http://localhost:5000
+```
+
+### 5. Frontend starten
+
+```bash
+cd frontend
+npm install
 npm start
- ```
+```
 
-Die Anwendung ist nun unter http://localhost:3000 verfügbar. Für das lokale
-Frontend- und Backend-Development ändert sich durch die HTTPS-Anforderung
-also nichts: Sie starten weiterhin mit `npm run dev` im Backend und
-`npm start` im Frontend. Erst in der produktiven Bereitstellung muss der
-Reverse-Proxy eingehende Anfragen auf HTTPS terminieren und den Header
-`X-Forwarded-Proto` an das Backend weiterleiten.
+Das Frontend läuft nun auf `http://localhost:3000`.
 
-## Produktivbetrieb
+### 6. Erster Start - Setup-Wizard
 
-### Backend produktiv starten
+Beim ersten Aufruf von `http://localhost:3000` erscheint automatisch der **Setup-Wizard**:
 
-1. Abhängigkeiten ohne Dev-Pakete installieren:
-   ```bash
-   cd backend
-   npm ci --omit=dev
-   ```
-2. `.env` mit produktiven Werten befüllen (starkes `JWT_SECRET`,
-   produktive Datenbank, erlaubte Domains in `ALLOWED_ORIGINS`).
-3. Den Server im Produktionsmodus starten, z. B. via systemd oder PM2:
-   ```bash
-   NODE_ENV=production npm run start
-   ```
-4. Vor dem Start sicherstellen, dass ein Reverse-Proxy (z. B. Nginx)
-   eingehende HTTPS-Verbindungen terminiert und den Header
-   `X-Forwarded-Proto` weiterreicht, damit das Backend HTTPS erzwingt.
+1. Geben Sie die E-Mail-Adresse des Administrators ein
+2. Wählen Sie ein sicheres Passwort (min. 8 Zeichen, Großbuchstabe, Zahl)
+3. Optional: Name eingeben
+4. Klicken Sie auf "Administrator erstellen"
 
-### Frontend produktiv bereitstellen
+Die Anwendung ist nun einsatzbereit.
 
-1. Build erzeugen:
-   ```bash
-   cd frontend
-   npm ci
-   REACT_APP_API_BASE_URL="https://<ihr-backend-domain>/api" npm run build
-   ```
-2. Den Inhalt des Verzeichnisses `frontend/build` von einem Webserver
-   (z. B. Nginx oder Apache) als statische Dateien ausliefern.
-3. Im Reverse-Proxy die API-Routen (z. B. `/api`) an das Backend weiter-
-   leiten und HTTPS erzwingen, sodass Browser-Anfragen, Cookies und CORS
-   korrekt funktionieren.
+---
 
-> **Hinweis:** Bei Updates genügt es, das neue Backend-Image bzw. den neuen
-> Build zu deployen und anschließend kurzzeitig neu zu starten. Die
-> Datenbankmigrationen werden über die bereitgestellten SQL-Skripte
-> ausgeführt (Votes → Comments → WZ-Kategorien). Der Standard-Administrator
-> (E-Mail `sven.winkler@bvmw.de`, Passwort `Pa$$wort123`) wird bei der
-> Initialisierung angelegt; ändern Sie das Passwort nach dem ersten Login.
+## Installation Produktion
 
-## Funktionen
+### Empfohlene Architektur
 
-- **Meldung bürokratischer Hemmnisse**: Formular zur Erfassung von Bürokratiefällen
-- **Kategorisierung**: Manuelle Auswahl der Kategorie (später KI-basiert)
-- **Übersicht**: Filterbare Liste aller eingetragenen Fälle
-- **Detailansicht**: Detaillierte Informationen zu einzelnen Meldungen
+```
+[Browser] → [Cloudflare/Nginx] → [Express Backend :5000]
+                                        ↓
+                                 [MySQL Datenbank]
+```
 
-## Kategorien
+Das Backend liefert sowohl die API als auch das Frontend aus (Same-Origin).
 
-Die Plattform verwendet folgende vordefinierte Kategorien:
+### Schritt-für-Schritt Anleitung
 
-1. **Steuer** - Steuerliche Vorschriften und Meldepflichten
-2. **Dokumentationspflicht** - Pflichten zur Dokumentation und Aufbewahrung
-3. **Rechnungswesen** - Buchführung, Bilanzierung und Jahresabschlüsse
-4. **Statistiken** - Statistische Meldepflichten und Erhebungen
-5. **Sozialversicherungen** - Meldeverfahren und Beitragsnachweise
-6. **Datenschutz** - DSGVO und andere Datenschutzanforderungen
-7. **Arbeitsschutz** - Arbeitsschutzvorschriften und Gefährdungsbeurteilungen
-8. **Branchenspezifisches** - Branchenspezifische Vorschriften und Auflagen
+#### 1. Server vorbereiten
 
-## Kommentarfunktion
+```bash
+# Node.js installieren (Ubuntu/Debian)
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
 
-Die Plattform verfügt über eine Tabelle `comments`, in der Moderatoren oder
-Administratoren Ergänzungen zu gemeldeten Fällen hinterlegen können.
-Jeder Kommentar enthält optional einen Gesetzesbezug (`law_reference`) und
-wird einem Benutzer sowie einer Meldung zugeordnet.
+# MySQL installieren
+sudo apt-get install -y mysql-server
+sudo mysql_secure_installation
+```
 
-**Spalten der Tabelle**
+#### 2. Datenbank einrichten
 
-- `id` – Primärschlüssel
-- `report_id` – Referenz auf die betroffene Meldung
-- `user_id` – Referenz auf den Autor (nur Moderator/Admin)
-- `law_reference` – optionale Angabe des zugrundeliegenden Gesetzes
-- `text` – eigentlicher Kommentar
-- `created_at` – Zeitstempel der Erstellung
+```bash
+sudo mysql -u root -p
+```
 
-Authentifizierte Moderatoren oder Administratoren erhalten ihr JWT über
-`POST /api/auth/login` (oder `POST /api/auth/register` für neue Accounts).
-Das Token wird beim Anlegen eines Kommentars an
-`POST /api/reports/:id/comments` im Header `Authorization: Bearer <TOKEN>`
-gesendet. Moderatoren können bestehende Kommentare zudem über
-`PUT /api/reports/:reportId/comments/:commentId` bearbeiten und über
-`DELETE /api/reports/:reportId/comments/:commentId` entfernen.
-Normale Benutzer dürfen zwar keine Kommentare erstellen, können sie
-aber über `GET /api/reports/:id/comments` ansehen. In der Meldungsübersicht
-wird anhand eines Sprechblasensymbols ("💬") angezeigt, ob zu einer Meldung
-bereits Kommentare vorliegen.
+```sql
+CREATE DATABASE buerokratieabbau CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'bvmw_prod'@'localhost' IDENTIFIED BY 'SICHERES_PASSWORT_HIER';
+GRANT ALL PRIVILEGES ON buerokratieabbau.* TO 'bvmw_prod'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+```
 
-### Moderatoren-Workflow
+```bash
+mysql -u bvmw_prod -p buerokratieabbau < backend/database/schema.sql
+```
 
-1. **Moderator anlegen:** Nach dem Login als Administrator die Seite
-   `/register-moderator` aufrufen und die Daten des neuen Moderators
-   eingeben. Das Admin-Token wird automatisch übertragen.
-2. **Moderator-Login:** Moderatoren melden sich über `/login` an. Das
-   ausgegebene JWT wird im Browser gespeichert.
-3. **Kommentieren:** In der Detailansicht einer Meldung befindet sich
-   unterhalb der Beschreibung ein Eingabefeld. Angemeldete Moderatoren
-   und Administratoren können hier Kommentare hinterlegen.
+#### 3. Anwendung deployen
 
-Für diese Erweiterung sind keine zusätzlichen Umgebungsvariablen nötig.
+```bash
+# Repository klonen
+cd /var/www
+git clone <repository-url> buerokratie
+cd buerokratie
 
-## Technologie-Stack
+# Frontend bauen
+cd frontend
+npm ci
+npm run build
+cd ..
 
-### Backend
+# Backend konfigurieren
+cd backend
+cp .env.example .env
+nano .env  # Siehe Konfiguration unten
+```
 
-- **Node.js**: JavaScript-Laufzeitumgebung
-- **Express**: Web-Framework für Node.js
-- **MySQL**: Relationale Datenbank
-- **mysql2**: MySQL-Client für Node.js
-- **dotenv**: Umgebungsvariablen-Management
-- **cors**: Cross-Origin Resource Sharing
-- **helmet**: Sicherheits-Middleware
-- **express-validator**: Validierung von Anfragen
+#### 4. Produktions-Konfiguration
 
-### Frontend
+Bearbeiten Sie `backend/.env`:
 
-- **React**: JavaScript-Bibliothek für Benutzeroberflächen
-- **React Router**: Routing für React-Anwendungen
-- **Axios**: HTTP-Client für API-Anfragen
-- **Formik**: Formular-Management
-- **Yup**: Schema-Validierung
-- **styled-components**: CSS-in-JS-Styling
+```env
+# Server
+PORT=5000
+NODE_ENV=production
 
-## Entwicklung
+# Datenbank
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_USER=bvmw_prod
+DB_PASSWORD=SICHERES_PASSWORT_HIER
+DB_NAME=buerokratieabbau
 
-### Backend-Entwicklung
+# JWT - Sicheren Schlüssel generieren:
+# node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+JWT_SECRET=IHR_GENERIERTER_64_BYTE_HEX_STRING
+JWT_EXPIRES_IN=24h
 
-- API-Endpunkte befinden sich im Verzeichnis `backend/routes/`
-- Datenbankverbindung wird in `backend/config/db.js` konfiguriert
-- Datenbankschema ist in `backend/database/schema.sql` definiert
+# CORS - Ihre Domain
+ALLOWED_ORIGINS=https://ihre-domain.de
 
-### Frontend-Entwicklung
+# HTTPS erzwingen
+ENFORCE_HTTPS=true
+```
 
-- Komponenten befinden sich im Verzeichnis `frontend/src/components/`
-- Routing wird in `frontend/src/App.js` konfiguriert
-- Styling erfolgt mit styled-components direkt in den Komponentendateien
+#### 5. Backend als Dienst einrichten (systemd)
+
+Erstellen Sie `/etc/systemd/system/buerokratie.service`:
+
+```ini
+[Unit]
+Description=BVMW Bürokratieabbau-Plattform
+After=network.target mysql.service
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/var/www/buerokratie/backend
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=10
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+# Dienst aktivieren und starten
+sudo systemctl daemon-reload
+sudo systemctl enable buerokratie
+sudo systemctl start buerokratie
+
+# Status prüfen
+sudo systemctl status buerokratie
+```
+
+#### 6. Nginx als Reverse-Proxy (optional)
+
+Falls Sie Nginx verwenden möchten:
+
+```nginx
+server {
+    listen 80;
+    server_name ihre-domain.de;
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name ihre-domain.de;
+
+    ssl_certificate /etc/letsencrypt/live/ihre-domain.de/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/ihre-domain.de/privkey.pem;
+
+    location / {
+        proxy_pass http://127.0.0.1:5000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+#### 7. Cloudflare-Setup (Alternative zu Nginx)
+
+1. DNS-Eintrag erstellen (A-Record auf Server-IP, Proxy aktiviert)
+2. SSL/TLS auf "Full (strict)" setzen
+3. "Always Use HTTPS" aktivieren
+4. Im Backend `ENFORCE_HTTPS=true` setzen
+
+#### 8. Erster Produktiv-Start
+
+1. Browser öffnen: `https://ihre-domain.de`
+2. Setup-Wizard erscheint automatisch
+3. Administrator-Account erstellen
+4. Anwendung ist bereit
+
+#### 9. Health-Check
+
+```bash
+curl https://ihre-domain.de/health
+# Erwartete Antwort: {"ok":true}
+```
+
+---
 
 ## Konfiguration
 
-### Backend-Konfiguration
+### Backend-Umgebungsvariablen
 
-Passen Sie die Datei `backend/.env` an Ihre Umgebung an:
+| Variable | Beschreibung | Beispiel |
+|----------|--------------|----------|
+| `PORT` | Server-Port | `5000` |
+| `NODE_ENV` | Umgebung | `development` oder `production` |
+| `DB_HOST` | Datenbank-Host | `127.0.0.1` |
+| `DB_PORT` | Datenbank-Port | `3306` |
+| `DB_USER` | Datenbank-Benutzer | `bvmw_user` |
+| `DB_PASSWORD` | Datenbank-Passwort | `geheim` |
+| `DB_NAME` | Datenbank-Name | `buerokratieabbau` |
+| `JWT_SECRET` | Token-Signierung | `min-32-zeichen` |
+| `JWT_EXPIRES_IN` | Token-Gültigkeit | `24h` |
+| `ALLOWED_ORIGINS` | Erlaubte Origins (komma-getrennt) | `https://domain.de` |
+| `ENFORCE_HTTPS` | HTTPS erzwingen | `true` oder `false` |
 
-```
-PORT=5000
-ALLOWED_ORIGINS=http://localhost:3000
-DB_HOST=127.0.0.1
-DB_USER=bvmw_user
-DB_PASSWORD=changeme
-DB_NAME=buerokratieabbau
-JWT_SECRET=changeme
-JWT_EXPIRES_IN=24h
-```
+### Frontend-Umgebungsvariablen
 
-**Wichtig:** Ersetzen Sie die Platzhalter `changeme` in `DB_PASSWORD` und `JWT_SECRET` durch sichere, individuelle Werte. Für `DB_HOST` wird `127.0.0.1` empfohlen, da dies zuverlässig auf die lokale Netzwerkschnittstelle zeigt und DNS- oder IPv6-Auflösungen von `localhost` umgeht.
+| Variable | Beschreibung | Beispiel |
+|----------|--------------|----------|
+| `REACT_APP_API_BASE_URL` | Backend-URL | `http://localhost:5000` (Dev) oder leer (Prod) |
 
-`JWT_EXPIRES_IN` legt fest, wie lange neu ausgestellte JSON Web Tokens gültig sind (Standard: 24 Stunden).
+**Hinweis:** In Produktion mit Same-Origin-Setup kann `REACT_APP_API_BASE_URL` leer bleiben.
 
-`ALLOWED_ORIGINS` legt fest, welche Urspruenge beim Aufruf der API zugelassen sind.
-Standardmäßig ist `http://localhost:3000` hinterlegt, sodass lokale Frontend-
-Anfragen funktionieren. Mehrere Eintraege koennen komma-getrennt angegeben
-werden.
+---
 
-**Hinweis zur Bereitstellung:** Im Produktionsbetrieb akzeptiert das Backend nur
-HTTPS-Anfragen. Stellen Sie sicher, dass Ihr Reverse-Proxy oder Load Balancer
-die Verbindung per HTTPS terminiert und den Header `X-Forwarded-Proto`
-weiterleitet. Für lokale Entwicklung und automatisierte Tests (NODE_ENV
-`development` bzw. `test`) bleibt HTTP weiterhin möglich.
+## Funktionen
 
-**Hinweis zur Bereitstellung:** Im Produktionsbetrieb akzeptiert das Backend nur
-HTTPS-Anfragen. Stellen Sie sicher, dass Ihr Reverse-Proxy oder Load Balancer
-die Verbindung per HTTPS terminiert und den Header `X-Forwarded-Proto`
-weiterleitet. Für lokale Entwicklung und automatisierte Tests (NODE_ENV
-`development` bzw. `test`) bleibt HTTP weiterhin möglich.
+### Für Benutzer
+- **Meldungen erstellen** - Bürokratische Hemmnisse mit Details erfassen
+- **Anonym melden** - Optional ohne Kontaktdaten
+- **Abstimmen** - "Das betrifft mich auch" für bestehende Meldungen
+- **Suchen & Filtern** - Nach Kategorie, Stichwort oder WZ-Branche
 
-### MySQL-Setup
+### Für Moderatoren
+- **Meldungen prüfen** - Freigeben oder ablehnen
+- **Kommentare** - Gesetzesbezüge und Erläuterungen hinzufügen
+- **Kontaktdaten einsehen** - Bei nicht-anonymen Meldungen
 
-1. Erstellen Sie eine neue Datenbank:
-```sql
-CREATE DATABASE buerokratieabbau;
-```
-
-2. Erstellen Sie einen Benutzer:
-```sql
-CREATE USER 'bvmw_user'@'localhost' IDENTIFIED BY 'IhrSicheresPasswort';
-GRANT ALL PRIVILEGES ON buerokratieabbau.* TO 'bvmw_user'@'localhost';
-FLUSH PRIVILEGES;
-```
-
-3. Importieren Sie das Schema:
-```bash
-mysql -u bvmw_user -p buerokratieabbau < backend/database/schema.sql
-
-# Enthält auch die Tabelle `comments`
-
-# Erweiterung für das Bewertungssystem einspielen
-mysql -u bvmw_user -p buerokratieabbau < database_votes_extension.sql
-
-# Für Installationen vor Einführung der Kommentarfunktion
-mysql -u bvmw_user -p buerokratieabbau < database_comments_extension.sql
-
-# Für Installationen vor Einführung der WZ-Kategorien
-mysql -u bvmw_user -p buerokratieabbau < database_wz_category_extension.sql
-
-```
-
-## Upgrade bestehender Installationen
-
-Für Deployments, die vor Einführung der WZ-Kategorisierung aufgesetzt wurden,
-führen Sie nach dem Votes- und Comments-Skript zusätzlich das neue Skript aus:
-
-```bash
-mysql -u bvmw_user -p buerokratieabbau < database_votes_extension.sql
-mysql -u bvmw_user -p buerokratieabbau < database_comments_extension.sql
-mysql -u bvmw_user -p buerokratieabbau < database_wz_category_extension.sql
-```
-
-Dies ergänzt die Spalte `wz_category_key` in der Tabelle `reports`, ohne
-bereits bestehende Daten zu verändern.
-
-## API-Endpunkte
+### Für Administratoren
+- **Moderatoren anlegen** - Neue Moderator-Accounts erstellen
+- **Alle Moderator-Funktionen**
 
 ### Kategorien
-- `GET /api/categories` - Alle Kategorien abrufen
-- `GET /api/categories/:id` - Eine Kategorie nach ID abrufen
 
-### Meldungen
-- `GET /api/reports` - Alle Meldungen abrufen
-- `POST /api/reports` - Neue Meldung erstellen
-- `GET /api/reports/:id` - Eine Meldung nach ID abrufen
-- `GET /api/reports/category/:categoryId` - Meldungen nach Kategorie filtern
-- `GET /api/reports/search/:query` - Meldungen durchsuchen
+1. Steuer
+2. Dokumentationspflicht
+3. Rechnungswesen
+4. Statistiken
+5. Sozialversicherungen
+6. Datenschutz
+7. Arbeitsschutz
+8. Branchenspezifisches
 
-### Kommentare
-- `GET /api/reports/:id/comments` - Kommentare zu einer Meldung abrufen
-- `POST /api/reports/:id/comments` - Kommentar zu einer Meldung erstellen (nur Moderator/Admin)
-- `PUT /api/reports/:reportId/comments/:commentId` - Kommentar bearbeiten (nur Moderator/Admin)
-- `DELETE /api/reports/:reportId/comments/:commentId` - Kommentar löschen (nur Moderator/Admin)
+---
+
+## API-Dokumentation
+
+### Setup
+
+| Methode | Endpunkt | Beschreibung |
+|---------|----------|--------------|
+| `GET` | `/api/setup/status` | Prüft ob Setup nötig ist |
+| `POST` | `/api/setup/admin` | Erstellt ersten Administrator |
 
 ### Authentifizierung
-- `POST /api/auth/register` - Benutzer registrieren und JWT erhalten
-- `POST /api/auth/login` - Mit E-Mail und Passwort anmelden
 
-Senden Sie das ausgegebene Token bei geschützten Anfragen im Header:
-`Authorization: Bearer <TOKEN>`
+| Methode | Endpunkt | Beschreibung |
+|---------|----------|--------------|
+| `POST` | `/api/auth/register` | Benutzer registrieren |
+| `POST` | `/api/auth/login` | Anmelden |
+| `POST` | `/api/auth/register-moderator` | Moderator anlegen (Admin) |
 
-## Roadmap
+### Meldungen
 
-1. **MVP (Aktuelle Version)**
-   - Grundlegende Funktionalität mit manueller Kategorisierung
-   - Einfache Benutzeroberfläche im BVMW-Design
+| Methode | Endpunkt | Beschreibung |
+|---------|----------|--------------|
+| `GET` | `/api/reports` | Alle freigegebenen Meldungen |
+| `GET` | `/api/reports/pending` | Alle Meldungen (Moderator) |
+| `GET` | `/api/reports/:id` | Einzelne Meldung |
+| `GET` | `/api/reports/:id/confidential` | Mit Kontaktdaten (Moderator) |
+| `POST` | `/api/reports` | Neue Meldung erstellen |
+| `PATCH` | `/api/reports/:id/status` | Status ändern (Moderator) |
+| `GET` | `/api/reports/category/:id` | Nach Kategorie filtern |
+| `GET` | `/api/reports/search/:query` | Suchen |
 
-2. **Version 2.0**
-   - KI-basierte automatische Kategorisierung
-   - Bewertungssystem für Meldungen
-   - Erweiterte Statistiken und Dashboards
+### Abstimmungen
 
+| Methode | Endpunkt | Beschreibung |
+|---------|----------|--------------|
+| `POST` | `/api/votes/:reportId/vote` | Abstimmen |
+| `DELETE` | `/api/votes/:reportId/vote` | Stimme entfernen |
+| `GET` | `/api/votes/:reportId/vote-status` | Status prüfen |
 
-3. **Version 3.0**
-   - Salesforce-Integration für Leadgenerierung
-   - Automatische Dossier-Erstellung für politische Arbeit
-   - Community-Features und Diskussionsmöglichkeiten
+### Kommentare
+
+| Methode | Endpunkt | Beschreibung |
+|---------|----------|--------------|
+| `GET` | `/api/reports/:id/comments` | Kommentare abrufen |
+| `POST` | `/api/reports/:id/comments` | Kommentar erstellen (Moderator) |
+| `PUT` | `/api/reports/:reportId/comments/:commentId` | Bearbeiten |
+| `DELETE` | `/api/reports/:reportId/comments/:commentId` | Löschen |
+
+### Kategorien
+
+| Methode | Endpunkt | Beschreibung |
+|---------|----------|--------------|
+| `GET` | `/api/categories` | Alle Kategorien |
+| `GET` | `/api/wz-categories` | WZ-Oberkategorien |
+
+### Authentifizierung
+
+Geschützte Endpunkte erfordern den Header:
+```
+Authorization: Bearer <JWT_TOKEN>
+```
+
+---
+
+## Entwicklung
+
+### Projektstruktur
+
+```
+Buerokratie/
+├── backend/
+│   ├── app.js                 # Express-App
+│   ├── server.js              # Server-Start
+│   ├── config/db.js           # Datenbank-Verbindung
+│   ├── database/schema.sql    # DB-Schema
+│   ├── middleware/auth.js     # JWT-Middleware
+│   ├── routes/                # API-Endpunkte
+│   │   ├── setup.js           # Setup-Wizard
+│   │   ├── auth.js            # Authentifizierung
+│   │   ├── reports.js         # Meldungen
+│   │   ├── votes.js           # Abstimmungen
+│   │   ├── comments.js        # Kommentare
+│   │   └── categories.js      # Kategorien
+│   └── tests/                 # Backend-Tests
+│
+├── frontend/
+│   ├── src/
+│   │   ├── App.tsx            # Haupt-App (TypeScript)
+│   │   ├── AuthContext.tsx    # Auth-State
+│   │   ├── api.ts             # API-Client
+│   │   ├── theme.ts           # Farbsystem
+│   │   ├── types/             # TypeScript-Typen
+│   │   ├── components/        # React-Komponenten
+│   │   │   ├── SetupWizard.tsx
+│   │   │   ├── ReportForm.js
+│   │   │   ├── ReportList.js
+│   │   │   └── ...
+│   │   └── pages/             # Seiten-Komponenten
+│   ├── tsconfig.json          # TypeScript-Config
+│   └── package.json
+│
+├── Claude.md                  # Entwickler-Dokumentation
+└── README.md                  # Diese Datei
+```
+
+### Tech-Stack
+
+**Backend:**
+- Node.js + Express
+- MySQL + mysql2
+- JWT (jsonwebtoken)
+- bcrypt, helmet, cors, express-validator
+
+**Frontend:**
+- React 18 + TypeScript
+- React Router v6
+- styled-components
+- Formik + Yup
+- Axios
+
+### Farbsystem
+
+Alle Farben sind in `frontend/src/theme.ts` definiert:
+
+```typescript
+import { colors } from './theme';
+
+// Verwendung in styled-components:
+const Button = styled.button`
+  background: ${colors.primary};      // #E30613 (BVMW Rot)
+  color: ${colors.background};        // #FFFFFF
+
+  &:hover {
+    background: ${colors.primaryDark}; // #b20510
+  }
+`;
+```
+
+---
 
 ## Tests
 
-### Backend
+### Backend-Tests
 
 ```bash
 cd backend
 npm test
 ```
 
-### Frontend
+### Frontend-Tests
 
 ```bash
 cd frontend
 npm test
 ```
+
+### Manueller Test nach Installation
+
+1. Health-Check: `GET /health` → `{"ok":true}`
+2. Setup-Status: `GET /api/setup/status`
+3. Admin erstellen über Setup-Wizard
+4. Login testen
+5. Meldung erstellen
+6. Abstimmen
+
+---
+
+## Upgrade bestehender Installationen
+
+Falls Sie von einer älteren Version upgraden:
+
+```bash
+# Neueste Version holen
+git pull
+
+# Backend-Abhängigkeiten aktualisieren
+cd backend
+npm install
+
+# Frontend neu bauen
+cd ../frontend
+npm install
+npm run build
+
+# Dienst neustarten
+sudo systemctl restart buerokratie
+```
+
+**Hinweis:** Das Datenbank-Schema verwendet `CREATE TABLE IF NOT EXISTS`, sodass keine manuellen Migrationen nötig sind.
+
+---
 
 ## Support
 
 Bei Fragen oder Problemen wenden Sie sich an das Entwicklungsteam.
 
-
 ## Lizenz
 
-Dieses Projekt ist proprietaer. Eine Weitergabe oder Aenderung ist ohne ausdrueckliche schriftliche Genehmigung des BVMW nicht gestattet. Siehe die Datei LICENSE fuer Details.
-
-## Produktion (einfachste Variante)
-
-**Ziel:** Frontend-Build wird vom Express-Backend (Port `5000`) ausgeliefert. Ein Cloudflare-Hostname zeigt auf diesen Port. Keine separate Subdomain für das Frontend, keine CORS-Probleme.
-
-### Schritte
-
-1. **Frontend bauen**
-   ```bash
-   cd frontend
-   npm ci
-   npm run build
-   cd ..
-   ```
-2. **Environment konfigurieren**
-   ```bash
-   cd backend
-   cp .env.example .env
-   # Passe ENFORCE_HTTPS, DB- und JWT-Werte an
-   cd ..
-   ```
-3. **Backend (liefert auch das Frontend aus) starten**
-   ```bash
-   cd backend
-   npm install --production
-   npm run start
-   ```
-4. **Cloudflare-Hostname einrichten**
-   - Lege in Cloudflare einen DNS-Eintrag (z. B. `app.example.com`) mit Proxy (orange cloud) an, der auf den Server zeigt.
-   - Stelle sicher, dass der Server Port `5000` offen hat oder ein lokaler Reverse-Proxy (z. B. Nginx) auf `localhost:5000` weiterleitet.
-   - Aktiviere in Cloudflare „Always Use HTTPS“ oder lasse den Express-Redirect (`ENFORCE_HTTPS=true`) aktiv.
-
-5. **Smoke-Test**
-   - `https://app.example.com/health` sollte `{"ok": true}` zurückgeben.
-   - Die Startseite wird aus dem React-Build ausgeliefert; API-Calls laufen über denselben Origin (`/api/...`).
-
+Dieses Projekt ist proprietär. Eine Weitergabe oder Änderung ist ohne ausdrückliche schriftliche Genehmigung des BVMW nicht gestattet.
