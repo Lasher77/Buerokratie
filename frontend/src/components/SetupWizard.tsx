@@ -232,7 +232,7 @@ const SetupWizard: React.FC<SetupWizardProps> = ({ onSetupComplete }) => {
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
             />
-            {formik.touched.email && formik.errors.email && (
+            {(formik.touched.email || formik.submitCount > 0) && formik.errors.email && (
               <ErrorText>{formik.errors.email}</ErrorText>
             )}
           </FormGroup>
@@ -251,7 +251,7 @@ const SetupWizard: React.FC<SetupWizardProps> = ({ onSetupComplete }) => {
             <PasswordHint>
               Mind. 8 Zeichen, ein Großbuchstabe und eine Zahl
             </PasswordHint>
-            {formik.touched.password && formik.errors.password && (
+            {(formik.touched.password || formik.submitCount > 0) && formik.errors.password && (
               <ErrorText>{formik.errors.password}</ErrorText>
             )}
           </FormGroup>
@@ -267,7 +267,7 @@ const SetupWizard: React.FC<SetupWizardProps> = ({ onSetupComplete }) => {
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
             />
-            {formik.touched.confirmPassword && formik.errors.confirmPassword && (
+            {(formik.touched.confirmPassword || formik.submitCount > 0) && formik.errors.confirmPassword && (
               <ErrorText>{formik.errors.confirmPassword}</ErrorText>
             )}
           </FormGroup>
