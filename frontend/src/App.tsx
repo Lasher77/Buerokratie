@@ -49,7 +49,7 @@ const LogoImage = styled.img`
 const LogoText = styled.div`
   font-size: ${typography.fontSizeLarge};
   font-weight: ${typography.fontWeightBold};
-  color: ${colors.primary};
+  color: ${colors.textPrimary};
 `;
 
 const Nav = styled.nav`
@@ -58,7 +58,7 @@ const Nav = styled.nav`
 `;
 
 const NavLink = styled(Link)`
-  color: ${colors.primary};
+  color: ${colors.textPrimary};
   text-decoration: none;
   font-weight: ${typography.fontWeightBold};
   padding: 10px;
@@ -66,11 +66,11 @@ const NavLink = styled(Link)`
   transition: background-color 0.3s, color 0.3s;
 
   &:hover {
-    background-color: ${colors.primaryLight};
+    background-color: ${colors.grayLight};
   }
 
   &:focus {
-    outline: 2px solid ${colors.primaryLight};
+    outline: 2px solid ${colors.primary};
     outline-offset: 2px;
   }
 
@@ -80,7 +80,7 @@ const NavLink = styled(Link)`
   }
 
   &.active:hover {
-    background-color: ${colors.primaryDark};
+    background-color: ${colors.primary};
     color: ${colors.background};
   }
 `;
@@ -93,14 +93,15 @@ const LogoutButton = styled.button`
   padding: 10px 16px;
   border-radius: ${borderRadius.small};
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s;
 
   &:hover {
-    background-color: ${colors.primaryDark};
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(227, 6, 19, 0.3);
   }
 
   &:focus {
-    outline: 2px solid ${colors.primaryLight};
+    outline: 2px solid ${colors.primary};
     outline-offset: 2px;
   }
 `;
@@ -112,7 +113,7 @@ const Main = styled.main`
 `;
 
 const Footer = styled.footer`
-  background-color: ${colors.primaryDark};
+  background-color: ${colors.gray};
   color: ${colors.background};
   padding: 30px 0;
   margin-top: 60px;
@@ -135,7 +136,7 @@ const FooterSection = styled.div`
 const FooterTitle = styled.h3`
   margin-bottom: 15px;
   font-size: ${typography.fontSizeMedium};
-  color: ${colors.primaryLight};
+  color: ${colors.background};
 `;
 
 const FooterLink = styled.a`
@@ -143,13 +144,15 @@ const FooterLink = styled.a`
   text-decoration: none;
   display: block;
   margin-bottom: 8px;
+  opacity: 0.9;
 
   &:hover {
-    color: ${colors.primaryLight};
+    opacity: 1;
+    color: ${colors.primary};
   }
 
   &:focus {
-    outline: 2px solid ${colors.primaryLight};
+    outline: 2px solid ${colors.background};
     outline-offset: 2px;
   }
 `;

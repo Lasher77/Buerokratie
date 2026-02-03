@@ -36,7 +36,7 @@ const ReportCard = styled.div`
   border-left: 5px solid ${props => {
     switch (props.category) {
       case 'Steuer': return '#E30613'; // BVMW Rot
-      case 'Dokumentationspflicht': return '#b20510'; // Dunkles Rot
+      case 'Dokumentationspflicht': return '#58585A'; // Grau
       case 'Rechnungswesen': return '#58585A'; // BVMW Grau
       case 'Statistiken': return '#009FE3'; // Hellblau
       case 'Sozialversicherungen': return '#95C11F'; // Grün
@@ -49,7 +49,7 @@ const ReportCard = styled.div`
 `;
 
 const ReportTitle = styled.h1`
-  color: #E30613;
+  color: #1A1A1A;
   margin-bottom: 20px;
   font-size: 28px;
   line-height: 1.3;
@@ -91,7 +91,7 @@ const MetaItem = styled.div`
 
 const MetaLabel = styled.span`
   font-weight: bold;
-  color: #E30613;
+  color: #58585A;
   margin-bottom: 5px;
   font-size: 14px;
 `;
@@ -113,7 +113,7 @@ const VoteButton = styled.button`
   display: flex;
   align-items: center;
   gap: 8px;
-  background-color: ${props => props.hasVoted ? '#4CAF50' : '#E30613'}; /* BVMW Rot oder Grün */
+  background-color: ${props => props.hasVoted ? '#4CAF50' : '#E30613'};
   color: white;
   border: none;
   padding: 12px 20px;
@@ -121,14 +121,17 @@ const VoteButton = styled.button`
   font-weight: bold;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: transform 0.2s, box-shadow 0.2s;
 
   &:hover {
-    background-color: ${props => props.hasVoted ? '#45a049' : '#b20510'};
+    transform: translateY(-1px);
+    box-shadow: ${props => props.hasVoted
+      ? '0 4px 12px rgba(76, 175, 80, 0.3)'
+      : '0 4px 12px rgba(227, 6, 19, 0.3)'};
   }
 
   &:focus {
-    outline: 2px solid #f9d8dc;
+    outline: 2px solid ${props => props.hasVoted ? '#4CAF50' : '#E30613'};
     outline-offset: 2px;
   }
 

@@ -20,7 +20,7 @@ const FormContainer = styled.div`
 `;
 
 const FormTitle = styled.h2`
-  color: #E30613;
+  color: #1A1A1A;
   margin-bottom: 20px;
   font-size: 24px;
 `;
@@ -33,28 +33,27 @@ const Label = styled.label`
   display: block;
   margin-bottom: 8px;
   font-weight: bold;
-  color: #E30613;
+  color: #2d2d2d;
 `;
 
 const Input = styled.input`
   width: 100%;
   padding: 12px 20px;
-  border: 2px solid #E30613;
-  border-radius: 999px;
+  border: 1px solid #E5E5E5;
+  border-radius: 8px;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   color: #2d2d2d;
   background-color: #fff;
-  box-shadow: 0 8px 18px rgba(227, 6, 19, 0.08);
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 
   &:hover {
-    box-shadow: 0 10px 22px rgba(227, 6, 19, 0.12);
+    border-color: #9b9b9b;
   }
 
   &:focus {
-    border-color: #b20510;
-    box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.18);
+    border-color: #E30613;
+    box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.1);
     outline: none;
   }
 `;
@@ -62,23 +61,22 @@ const Input = styled.input`
 const TextArea = styled.textarea`
   width: 100%;
   padding: 16px 20px;
-  border: 2px solid #E30613;
-  border-radius: 24px;
+  border: 1px solid #E5E5E5;
+  border-radius: 8px;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   color: #2d2d2d;
   background-color: #fff;
   min-height: 150px;
-  box-shadow: 0 8px 18px rgba(227, 6, 19, 0.08);
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 
   &:hover {
-    box-shadow: 0 10px 22px rgba(227, 6, 19, 0.12);
+    border-color: #9b9b9b;
   }
 
   &:focus {
-    border-color: #b20510;
-    box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.18);
+    border-color: #E30613;
+    box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.1);
     outline: none;
   }
 `;
@@ -108,14 +106,15 @@ const SubmitButton = styled.button`
   font-weight: bold;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: transform 0.2s, box-shadow 0.2s;
 
   &:hover {
-    background-color: #b20510;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(227, 6, 19, 0.3);
   }
 
   &:focus {
-    outline: 2px solid #f9d8dc;
+    outline: 2px solid #E30613;
     outline-offset: 2px;
   }
 
