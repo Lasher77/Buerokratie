@@ -13,7 +13,7 @@ const Container = styled.div`
 `;
 
 const Title = styled.h2`
-  color: #E30613;
+  color: #1A1A1A;
   margin-bottom: 20px;
 `;
 
@@ -40,14 +40,15 @@ const Button = styled.button`
   padding: 10px 20px;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: transform 0.2s, box-shadow 0.2s;
 
   &:hover {
-    background-color: #b20510;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(227, 6, 19, 0.3);
   }
 
   &:focus {
-    outline: 2px solid #f9d8dc;
+    outline: 2px solid #E30613;
     outline-offset: 2px;
   }
 `;

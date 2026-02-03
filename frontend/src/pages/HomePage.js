@@ -4,9 +4,9 @@ import styled from 'styled-components';
 import bvmwLogo from '../assets/bvmw-logo.png';
 
 const PRIMARY_RED = '#E30613';
-const PRIMARY_RED_DARK = '#b20510';
-const PRIMARY_RED_LIGHT = '#f9d8dc';
-const ACCENT_GREY = '#6f6f6f';
+const TEXT_PRIMARY = '#1A1A1A';
+const TEXT_SECONDARY = '#2d2d2d';
+const GRAY = '#58585A';
 
 const PageWrapper = styled.div`
   display: flex;
@@ -15,7 +15,7 @@ const PageWrapper = styled.div`
 `;
 
 const HeroSection = styled.section`
-  background: linear-gradient(135deg, rgba(227, 6, 19, 0.12), rgba(227, 6, 19, 0.02));
+  background: #fff;
   border-radius: 24px;
   padding: 70px 60px;
   display: flex;
@@ -23,6 +23,7 @@ const HeroSection = styled.section`
   align-items: center;
   justify-content: space-between;
   gap: 40px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 `;
 
 const HeroContent = styled.div`
@@ -43,14 +44,14 @@ const HeroTagline = styled.span`
 const HeroTitle = styled.h1`
   font-size: clamp(2.5rem, 4vw, 3.5rem);
   line-height: 1.15;
-  color: ${PRIMARY_RED_DARK};
+  color: ${TEXT_PRIMARY};
   margin: 0 0 20px;
 `;
 
 const HeroSubtitle = styled.p`
   font-size: 1.1rem;
   line-height: 1.6;
-  color: #444;
+  color: ${TEXT_SECONDARY};
   margin-bottom: 32px;
 `;
 
@@ -67,12 +68,12 @@ const PrimaryButton = styled(Link)`
   border-radius: 999px;
   font-weight: 700;
   text-decoration: none;
-  transition: background-color 0.3s ease, transform 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 
   &:hover,
   &:focus {
-    background-color: ${PRIMARY_RED_DARK};
     transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(227, 6, 19, 0.3);
   }
 `;
 
@@ -83,12 +84,13 @@ const SecondaryButton = styled(Link)`
   border-radius: 999px;
   font-weight: 700;
   text-decoration: none;
+  background-color: transparent;
   transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
 
   &:hover,
   &:focus {
-    background-color: ${PRIMARY_RED_LIGHT};
-    color: ${PRIMARY_RED_DARK};
+    background-color: ${PRIMARY_RED};
+    color: #fff;
     transform: translateY(-2px);
   }
 `;
@@ -118,7 +120,7 @@ const LogoImage = styled.img`
 
 const LogoCaption = styled.span`
   font-size: 0.9rem;
-  color: ${ACCENT_GREY};
+  color: ${GRAY};
   text-align: center;
 `;
 
@@ -138,19 +140,19 @@ const InfoCard = styled.article`
 
 const InfoTitle = styled.h2`
   font-size: 1.4rem;
-  color: ${PRIMARY_RED_DARK};
+  color: ${TEXT_PRIMARY};
   margin-bottom: 14px;
 `;
 
 const InfoText = styled.p`
   font-size: 1rem;
   line-height: 1.6;
-  color: #444;
+  color: ${TEXT_SECONDARY};
 `;
 
 const Callout = styled.section`
-  background: ${PRIMARY_RED};
-  color: #fff;
+  background: #fff;
+  color: ${TEXT_PRIMARY};
   border-radius: 24px;
   padding: 40px 44px;
   display: flex;
@@ -158,6 +160,8 @@ const Callout = styled.section`
   align-items: center;
   justify-content: space-between;
   gap: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border-left: 6px solid ${PRIMARY_RED};
 `;
 
 const CalloutText = styled.div`
@@ -167,17 +171,19 @@ const CalloutText = styled.div`
 const CalloutTitle = styled.h3`
   margin: 0 0 12px;
   font-size: 1.8rem;
+  color: ${TEXT_PRIMARY};
 `;
 
 const CalloutDescription = styled.p`
   margin: 0;
   font-size: 1.05rem;
   line-height: 1.6;
+  color: ${TEXT_SECONDARY};
 `;
 
 const CalloutAction = styled(Link)`
-  background: #fff;
-  color: ${PRIMARY_RED_DARK};
+  background: ${PRIMARY_RED};
+  color: #fff;
   padding: 12px 28px;
   border-radius: 999px;
   font-weight: 700;
@@ -187,7 +193,7 @@ const CalloutAction = styled(Link)`
   &:hover,
   &:focus {
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 6px 20px rgba(227, 6, 19, 0.3);
   }
 `;
 

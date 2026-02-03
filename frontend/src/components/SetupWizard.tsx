@@ -107,11 +107,12 @@ const SubmitButton = styled.button`
   font-size: ${typography.fontSizeBase};
   font-weight: ${typography.fontWeightBold};
   cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s;
+  transition: transform 0.2s, box-shadow 0.2s;
   margin-top: 8px;
 
   &:hover:not(:disabled) {
-    background: ${colors.primaryDark};
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(227, 6, 19, 0.3);
   }
 
   &:active:not(:disabled) {
@@ -128,7 +129,7 @@ const Alert = styled.div<{ $type: 'error' | 'success' }>`
   padding: 12px 16px;
   border-radius: ${borderRadius.medium};
   font-size: ${typography.fontSizeSmall};
-  background: ${props => props.$type === 'error' ? colors.primaryLight : '#e8f5e9'};
+  background: ${props => props.$type === 'error' ? '#fef2f2' : '#e8f5e9'};
   color: ${props => props.$type === 'error' ? colors.primary : colors.success};
   margin-bottom: 16px;
 `;

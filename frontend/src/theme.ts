@@ -6,10 +6,8 @@
  */
 
 export const colors = {
-  // Primärfarben
-  primary: '#E30613',        // BVMW Rot - Hauptfarbe
-  primaryDark: '#b20510',    // Dunkles Rot für Hover/Footer
-  primaryLight: '#f9d8dc',   // Helles Rot für Focus/Hintergrund
+  // Primärfarbe - nur ein Rot-Ton
+  primary: '#E30613',        // BVMW Rot - einzige Akzentfarbe
 
   // Neutrale Farben
   gray: '#58585A',           // BVMW Grau - für Tags, sekundäre Elemente
@@ -25,7 +23,7 @@ export const colors = {
   background: '#FFFFFF',     // Weiß
   backgroundAlt: '#f9f9f9',  // Leicht grauer Hintergrund
 
-  // Status-Farben (reduziert auf BVMW-Palette)
+  // Status-Farben
   success: '#2E7D32',        // Grün für Erfolg
   warning: '#FFB400',        // Gelb für Warnung
   error: '#E30613',          // Rot für Fehler (= primary)
@@ -49,7 +47,7 @@ export const statusConfig = {
     label: 'Abgelehnt',
     background: colors.primary,
     color: '#fff',
-    dotColor: colors.primaryLight,
+    dotColor: '#f9d8dc',
   },
   default: {
     label: 'Unbekannt',

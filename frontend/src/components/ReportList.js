@@ -16,7 +16,7 @@ const ListContainer = styled.div`
 `;
 
 const ListTitle = styled.h2`
-  color: #E30613;
+  color: #1A1A1A;
   margin-bottom: 20px;
   font-size: 24px;
 `;
@@ -116,24 +116,23 @@ const buttonBaseStyles = `
 
 const SearchButton = styled.button`
   ${buttonBaseStyles}
-  background: linear-gradient(135deg, #E30613, #b20510);
+  background: #E30613;
   color: #fff;
-  box-shadow: 0 14px 30px rgba(227, 6, 19, 0.25);
+  box-shadow: 0 4px 12px rgba(227, 6, 19, 0.2);
 
   &:hover {
-    background: linear-gradient(135deg, #f11824, #c10511);
     transform: translateY(-1px);
-    box-shadow: 0 18px 38px rgba(227, 6, 19, 0.3);
+    box-shadow: 0 6px 20px rgba(227, 6, 19, 0.3);
   }
 
   &:active {
     transform: translateY(0);
-    box-shadow: 0 8px 20px rgba(227, 6, 19, 0.22);
+    box-shadow: 0 2px 8px rgba(227, 6, 19, 0.2);
   }
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.4);
+    box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.2);
   }
 
   @media (max-width: 600px) {
@@ -207,7 +206,7 @@ const ReportCard = styled.div`
   border-left: 5px solid ${props => {
     switch (props.category) {
       case 'Steuer': return '#E30613'; // BVMW Rot
-      case 'Dokumentationspflicht': return '#b20510'; // Dunkles Rot
+      case 'Dokumentationspflicht': return '#58585A'; // Grau
       case 'Rechnungswesen': return '#58585A'; // BVMW Grau
       case 'Statistiken': return '#009FE3'; // Hellblau
       case 'Sozialversicherungen': return '#95C11F'; // Grün
@@ -218,7 +217,7 @@ const ReportCard = styled.div`
     }
   }};
   transition: transform 0.2s, box-shadow 0.2s;
-  
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
@@ -226,21 +225,21 @@ const ReportCard = styled.div`
 `;
 
 const ReportTitle = styled.h3`
-  color: #E30613;
+  color: #1A1A1A;
   margin-bottom: 10px;
   font-size: 20px;
 `;
 
 const ReportTitleLink = styled(Link)`
-  color: #E30613;
+  color: #1A1A1A;
   text-decoration: none;
 
   &:hover {
-    text-decoration: underline;
+    color: #E30613;
   }
 
   &:focus {
-    outline: 2px solid #f9d8dc;
+    outline: 2px solid #E30613;
     outline-offset: 2px;
   }
 `;

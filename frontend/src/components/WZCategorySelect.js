@@ -12,7 +12,7 @@ const SelectContainer = styled.div`
 
 const Label = styled.label`
   font-weight: 700;
-  color: #E30613;
+  color: #2d2d2d;
   letter-spacing: 0.01em;
 `;
 
@@ -20,18 +20,17 @@ const Select = styled.select`
   width: 100%;
   padding: 12px 20px;
   padding-right: 3.5rem;
-  border: 2px solid #E30613;
-  border-radius: 999px;
+  border: 1px solid #E5E5E5;
+  border-radius: 8px;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   background: #fff;
   color: #2d2d2d;
-  box-shadow: 0 8px 18px rgba(227, 6, 19, 0.08);
-  transition: box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
   appearance: none;
   cursor: pointer;
-  background-image: linear-gradient(45deg, transparent 50%, #E30613 50%),
-    linear-gradient(135deg, #E30613 50%, transparent 50%),
+  background-image: linear-gradient(45deg, transparent 50%, #58585A 50%),
+    linear-gradient(135deg, #58585A 50%, transparent 50%),
     linear-gradient(to right, transparent, transparent);
   background-position: calc(100% - 28px) calc(50% - 2px),
     calc(100% - 22px) calc(50% - 2px),
@@ -40,14 +39,13 @@ const Select = styled.select`
   background-repeat: no-repeat;
 
   &:hover {
-    box-shadow: 0 10px 22px rgba(227, 6, 19, 0.12);
+    border-color: #9b9b9b;
   }
 
   &:focus {
     outline: none;
-    border-color: #b20510;
-    box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.18);
-    background-color: #fff5f6;
+    border-color: #E30613;
+    box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.1);
   }
 `;
 
