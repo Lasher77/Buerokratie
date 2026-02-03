@@ -7,7 +7,7 @@ import React, {
   useCallback,
   ReactNode
 } from 'react';
-import jwtDecode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import api from './api';
 import type { User, JwtPayload, SetupStatus } from './types';
 

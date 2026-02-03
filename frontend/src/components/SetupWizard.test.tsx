@@ -23,8 +23,8 @@ describe('SetupWizard', () => {
   it('renders the setup form', () => {
     render(<SetupWizard onSetupComplete={mockOnSetupComplete} />);
 
-    expect(screen.getByText('BVMW Bürokratieabbau')).toBeInTheDocument();
-    expect(screen.getByText('Administrator erstellen')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /BVMW Bürokratieabbau/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Administrator erstellen/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/E-Mail-Adresse/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/^Passwort \*/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Passwort bestätigen/i)).toBeInTheDocument();
@@ -42,10 +42,11 @@ describe('SetupWizard', () => {
   });
 
   it('shows validation error for invalid email', async () => {
+    const user = userEvent.setup();
     render(<SetupWizard onSetupComplete={mockOnSetupComplete} />);
 
     const emailInput = screen.getByLabelText(/E-Mail-Adresse/i);
-    await userEvent.type(emailInput, 'invalid-email');
+    await user.type(emailInput, 'invalid-email');
     fireEvent.blur(emailInput);
 
     await waitFor(() => {
@@ -54,10 +55,11 @@ describe('SetupWizard', () => {
   });
 
   it('shows password validation errors', async () => {
+    const user = userEvent.setup();
     render(<SetupWizard onSetupComplete={mockOnSetupComplete} />);
 
     const passwordInput = screen.getByLabelText(/^Passwort \*/i);
-    await userEvent.type(passwordInput, 'short');
+    await user.type(passwordInput, 'short');
     fireEvent.blur(passwordInput);
 
     await waitFor(() => {
@@ -66,13 +68,14 @@ describe('SetupWizard', () => {
   });
 
   it('shows error when passwords do not match', async () => {
+    const user = userEvent.setup();
     render(<SetupWizard onSetupComplete={mockOnSetupComplete} />);
 
     const passwordInput = screen.getByLabelText(/^Passwort \*/i);
     const confirmInput = screen.getByLabelText(/Passwort bestätigen/i);
 
-    await userEvent.type(passwordInput, 'SecurePass1');
-    await userEvent.type(confirmInput, 'DifferentPass1');
+    await user.type(passwordInput, 'SecurePass1');
+    await user.type(confirmInput, 'DifferentPass1');
     fireEvent.blur(confirmInput);
 
     await waitFor(() => {
@@ -81,6 +84,7 @@ describe('SetupWizard', () => {
   });
 
   it('submits form and calls onSetupComplete on success', async () => {
+    const user = userEvent.setup();
     const mockToken = 'test-jwt-token';
     (api.post as jest.Mock).mockResolvedValueOnce({
       data: { token: mockToken, message: 'Administrator erfolgreich erstellt' }
@@ -88,13 +92,13 @@ describe('SetupWizard', () => {
 
     render(<SetupWizard onSetupComplete={mockOnSetupComplete} />);
 
-    await userEvent.type(screen.getByLabelText(/Name/i), 'Test Admin');
-    await userEvent.type(screen.getByLabelText(/E-Mail-Adresse/i), 'admin@test.de');
-    await userEvent.type(screen.getByLabelText(/^Passwort \*/i), 'SecurePass1');
-    await userEvent.type(screen.getByLabelText(/Passwort bestätigen/i), 'SecurePass1');
+    await user.type(screen.getByLabelText(/Name/i), 'Test Admin');
+    await user.type(screen.getByLabelText(/E-Mail-Adresse/i), 'admin@test.de');
+    await user.type(screen.getByLabelText(/^Passwort \*/i), 'SecurePass1');
+    await user.type(screen.getByLabelText(/Passwort bestätigen/i), 'SecurePass1');
 
     const submitButton = screen.getByRole('button', { name: /Administrator erstellen/i });
-    await userEvent.click(submitButton);
+    await user.click(submitButton);
 
     await waitFor(() => {
       expect(api.post).toHaveBeenCalledWith('/api/setup/admin', {
@@ -107,21 +111,25 @@ describe('SetupWizard', () => {
   });
 
   it('shows error message on API failure', async () => {
-    (api.post as jest.Mock).mockRejectedValueOnce({
-      message: 'Setup bereits abgeschlossen'
-    });
+    const user = userEvent.setup();
+    const errorMessage = 'Setup bereits abgeschlossen';
+    (api.post as jest.Mock).mockRejectedValueOnce(new Error(errorMessage));
+
+    // Update the mock to return the error message
+    const { getErrorMessage } = jest.requireMock('../api');
+    getErrorMessage.mockReturnValueOnce(errorMessage);
 
     render(<SetupWizard onSetupComplete={mockOnSetupComplete} />);
 
-    await userEvent.type(screen.getByLabelText(/E-Mail-Adresse/i), 'admin@test.de');
-    await userEvent.type(screen.getByLabelText(/^Passwort \*/i), 'SecurePass1');
-    await userEvent.type(screen.getByLabelText(/Passwort bestätigen/i), 'SecurePass1');
+    await user.type(screen.getByLabelText(/E-Mail-Adresse/i), 'admin@test.de');
+    await user.type(screen.getByLabelText(/^Passwort \*/i), 'SecurePass1');
+    await user.type(screen.getByLabelText(/Passwort bestätigen/i), 'SecurePass1');
 
     const submitButton = screen.getByRole('button', { name: /Administrator erstellen/i });
-    await userEvent.click(submitButton);
+    await user.click(submitButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/Setup bereits abgeschlossen/i)).toBeInTheDocument();
+      expect(screen.getByText(errorMessage)).toBeInTheDocument();
     });
 
     expect(mockOnSetupComplete).not.toHaveBeenCalled();
