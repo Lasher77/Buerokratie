@@ -293,7 +293,7 @@ const ReportDetail = () => {
   }, [id, sessionId]);
 
   const handleVote = async () => {
-    if (!sessionId || isVoting) return;
+    if (isVoting) return;
 
     setIsVoting(true);
     try {
